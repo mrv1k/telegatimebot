@@ -5,7 +5,8 @@ require("js-video-url-parser/lib/provider/youtube");
 
 const { parse: parseDuration } = require("iso8601-duration");
 
-const { google } = require("googleapis");
+const youtube = require("@googleapis/youtube");
+
 const part = ["contentDetails"];
 
 const a = "https://www.youtube.com/watch?v=AjWfY7SnMBI";
@@ -13,14 +14,14 @@ const b = "https://youtu.be/AjWfY7SnMBI?t=86408";
 console.log(urlParser.parse(a));
 console.log(urlParser.parse(b));
 
-async function getLength() {
-  const youtube = await google.youtube({
-    version: "v3",
-    auth: process.env.YOUTUBE_API_KEY,
-  });
+const client = youtube.youtube({
+  version: "v3",
+  auth: process.env.YOUTUBE_API_KEY,
+});
 
+async function getLength() {
   try {
-    const res = await youtube.videos.list({
+    const res = await client.videos.list({
       part,
       id: ["AjWfY7SnMBI"],
     });
@@ -45,7 +46,7 @@ async function getLength() {
   }
 }
 
-// getLength();
+getLength();
 
 // > urlParser.parse('http://www.youtube.com/watch?v=yQaAGmHNn9s&list=PL46F0A159EC02DF82#t=1m40');
 // {
