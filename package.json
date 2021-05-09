@@ -1,0 +1,24 @@
+{
+  "name": "lengthbot",
+  "version": "1.0.0",
+  "description": "Telegram bot that fetches Youtube's video length",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrv1k/lengthbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrv1k/lengthbot/issues"
+  },
+  "homepage": "https://github.com/mrv1k/lengthbot#readme",
+  "dependencies": {
+    "dotenv": "^9.0.0",
+    "telegraf": "^4.3.0"
+  }
+}
