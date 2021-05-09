@@ -1,17 +1,24 @@
 require("dotenv").config();
 
-const { parse } = require("iso8601-duration");
+const urlParser = require("js-video-url-parser/lib/base");
+require("js-video-url-parser/lib/provider/youtube");
+
+const { parse: parseDuration } = require("iso8601-duration");
 
 const { google } = require("googleapis");
 const part = ["contentDetails"];
+
+const a = "https://www.youtube.com/watch?v=AjWfY7SnMBI";
+const b = "https://youtu.be/AjWfY7SnMBI?t=86408";
+console.log(urlParser.parse(a));
+console.log(urlParser.parse(b));
 
 async function getLength() {
   const youtube = await google.youtube({
     version: "v3",
     auth: process.env.YOUTUBE_API_KEY,
   });
-  // https://www.youtube.com/watch?v=AjWfY7SnMBI
-  // https://youtu.be/AjWfY7SnMBI?t=86408
+
   try {
     const res = await youtube.videos.list({
       part,
@@ -19,7 +26,7 @@ async function getLength() {
     });
     const duration = res.data.items[0].contentDetails.duration;
     console.log(duration);
-    const parsed = parse(duration);
+    const parsed = parseDuration(duration);
     console.log(parsed);
 
     const doubleDigit = (digit) => `${digit <= 9 ? "0" : ""}${digit}`;
@@ -38,33 +45,15 @@ async function getLength() {
   }
 }
 
-getLength();
+// getLength();
 
-function getChannel(auth) {
-  var service = google.youtube("v3");
-  service.channels.list(
-    {
-      auth: auth,
-      part: "snippet,contentDetails,statistics",
-      forUsername: "GoogleDevelopers",
-    },
-    function (err, response) {
-      if (err) {
-        console.log("The API returned an error: " + err);
-        return;
-      }
-      var channels = response.data.items;
-      if (channels.length == 0) {
-        console.log("No channel found.");
-      } else {
-        console.log(
-          "This channel's ID is %s. Its title is '%s', and " +
-            "it has %s views.",
-          channels[0].id,
-          channels[0].snippet.title,
-          channels[0].statistics.viewCount
-        );
-      }
-    }
-  );
-}
+// > urlParser.parse('http://www.youtube.com/watch?v=yQaAGmHNn9s&list=PL46F0A159EC02DF82#t=1m40');
+// {
+//     mediaType: 'video',
+//     id: 'yQaAGmHNn9s',
+//     list: 'PL46F0A159EC02DF82',
+//     provider: 'youtube'
+//     params: {
+//       start: 100
+//     }
+// }
