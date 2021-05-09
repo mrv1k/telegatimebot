@@ -14,8 +14,16 @@ module.exports = async function fetchDuration(id) {
       part,
       id: [id],
     });
-    const duration = res.data.items[0].contentDetails.duration;
-    return parseDuration(duration);
+    const { data } = res;
+
+    if (res.status === 200 && data.length === 0) {
+      return "private";
+    }
+
+    const firstItem = data.items[0];
+    const duration = firstItem?.contentDetails?.duration;
+    if (duration) return parseDuration(duration);
+    return "duration_not_found";
   } catch (e) {
     console.error(e);
   }
