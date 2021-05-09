@@ -5,6 +5,7 @@ const urlParser = require("js-video-url-parser/lib/base");
 require("js-video-url-parser/lib/provider/youtube");
 
 const fetchDuration = require("./fetchDuration");
+const formatDuration = require("./formatDuration");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start((ctx) => ctx.reply("Welcome"));
@@ -20,7 +21,8 @@ bot.url(/youtu(\.)?be/, async (ctx) => {
   }
 
   const duration = await fetchDuration(parsed.id);
-  ctx.reply(JSON.stringify(duration));
+  const formattedDuration = formatDuration(duration);
+  ctx.reply(formattedDuration);
 });
 
 bot.command("stfu", (ctx) => {
