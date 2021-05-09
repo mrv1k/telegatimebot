@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const { parse } = require("iso8601-duration");
+
 const { google } = require("googleapis");
 const part = ["contentDetails"];
 
@@ -8,15 +10,29 @@ async function getLength() {
     version: "v3",
     auth: process.env.YOUTUBE_API_KEY,
   });
-
+  // https://www.youtube.com/watch?v=AjWfY7SnMBI
+  // https://youtu.be/AjWfY7SnMBI?t=86408
   try {
     const res = await youtube.videos.list({
       part,
-      id: ["D-cp5TEid5o"],
+      id: ["AjWfY7SnMBI"],
     });
     const duration = res.data.items[0].contentDetails.duration;
     console.log(duration);
-    console.log(Date.parse(duration));
+    const parsed = parse(duration);
+    console.log(parsed);
+
+    const doubleDigit = (digit) => `${digit <= 9 ? "0" : ""}${digit}`;
+    let reply = "";
+    let hours = 0;
+    if (parsed.days !== 0) hours += parsed.days * 24;
+    if (parsed.hours !== 0) hours += parsed.hours;
+    reply += hours;
+    reply += ":";
+    if (parsed.minutes !== 0) reply += doubleDigit(parsed.minutes);
+    reply += ":";
+    if (parsed.seconds !== 0) reply += doubleDigit(parsed.seconds);
+    console.log(reply);
   } catch (e) {
     console.error(e);
   }
