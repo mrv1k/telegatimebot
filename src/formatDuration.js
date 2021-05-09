@@ -1,0 +1,11 @@
+const doubleDigit = (digit) => `${digit <= 9 ? "0" : ""}${digit}`;
+let reply = "";
+let hours = 0;
+if (parsed.days !== 0) hours += parsed.days * 24;
+if (parsed.hours !== 0) hours += parsed.hours;
+reply += hours;
+reply += ":";
+if (parsed.minutes !== 0) reply += doubleDigit(parsed.minutes);
+reply += ":";
+if (parsed.seconds !== 0) reply += doubleDigit(parsed.seconds);
+console.log(reply);
