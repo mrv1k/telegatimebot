@@ -22,7 +22,9 @@ bot.url(/youtu(\.)?be/, async (ctx) => {
 
   const duration = await fetchDuration(parsed.id);
   const formattedDuration = formatDuration(duration);
-  ctx.reply(formattedDuration);
+  ctx.reply(`Duration: ${formattedDuration}`, {
+    reply_to_message_id: ctx.message.message_id,
+  });
 });
 
 bot.command("stfu", (ctx) => {
