@@ -2,7 +2,7 @@
   "name": "lengthbot",
   "version": "1.0.0",
   "description": "Telegram bot that fetches Youtube's video length",
-  "main": "index.js",
+  "main": "src/bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

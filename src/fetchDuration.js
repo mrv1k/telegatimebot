@@ -8,7 +8,7 @@ const client = youtube.youtube({
   auth: process.env.YOUTUBE_API_KEY,
 });
 
-module.exports = async function fetchVideoDuration(id) {
+module.exports = async function fetchDuration(id) {
   try {
     const res = await client.videos.list({
       part,
