@@ -1,2 +1,3 @@
 # lengthbot
-Telegram bot that fetches Youtube's video length
+
+Telegram bot that fetches YouTube's video length
