@@ -1,6 +1,8 @@
-const doubleDigit = (digit) => `${digit <= 9 ? "0" : ""}${digit}`;
+import { Duration } from "iso8601-duration";
 
-module.exports = function formatDuration(parsedDuration) {
+const doubleDigit = (digit: number) => `${digit <= 9 ? "0" : ""}${digit}`;
+
+export default function formatDuration(parsedDuration: Duration): string {
   const { days = 0, hours = 0, minutes = 0, seconds = 0 } = parsedDuration;
 
   const none = seconds === 0 && minutes === 0 && hours === 0 && days === 0;
@@ -26,4 +28,4 @@ module.exports = function formatDuration(parsedDuration) {
   if (days !== 0) h += days * 24;
 
   return `${h}:${mm}:${ss}`;
-};
+}
