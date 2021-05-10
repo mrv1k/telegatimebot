@@ -1,7 +1,7 @@
 const doubleDigit = (digit) => `${digit <= 9 ? "0" : ""}${digit}`;
 
 module.exports = function formatDuration(parsedDuration) {
-  const { days, hours, minutes, seconds } = parsedDuration;
+  const { days = 0, hours = 0, minutes = 0, seconds = 0 } = parsedDuration;
 
   const none = seconds === 0 && minutes === 0 && hours === 0 && days === 0;
   if (none) {
@@ -19,12 +19,11 @@ module.exports = function formatDuration(parsedDuration) {
     return `${minutes}:${doubleDigit(seconds)}`;
   }
 
-  // f = formatted
-  const fSeconds = doubleDigit(seconds);
-  const fMinutes = doubleDigit(minutes);
-  let fHours = 0;
-  if (hours !== 0) fHours += hours;
-  if (days !== 0) fHours += days * 24;
+  const ss = doubleDigit(seconds);
+  const mm = doubleDigit(minutes);
+  let h = 0;
+  if (hours !== 0) h += hours;
+  if (days !== 0) h += days * 24;
 
-  return `${fHours}:${fMinutes}:${fSeconds}`;
+  return `${h}:${mm}:${ss}`;
 };
