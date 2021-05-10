@@ -12,8 +12,31 @@ bot.start((ctx) => ctx.reply("Hey meatbags"));
 bot.help((ctx) =>
   ctx.reply(`
 /duration <url>
+/timestamp <url>?t=666
 `)
 );
+
+bot.command("timestamp", async (ctx) => {
+  const params = ctx.message.text.split(" ");
+  if (params.length === 1) {
+    return ctx.reply("Converts to telegram timestamp.");
+  }
+
+  const url = params[1];
+  const parsedUrl = urlParser.parse(url);
+  if (parsedUrl === undefined) {
+    ctx.reply("Could not parse YouTube's url");
+  }
+
+  const timestamp = parsedUrl?.params?.start;
+  if (timestamp) {
+    const formattedTime = formatDuration(secondsToHms(timestamp));
+    ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
+    return;
+  }
+
+  ctx.reply("Couldn't parse timestamp");
+});
 
 // regex tests - https://regexr.com/5si73
 bot.url(/youtu(\.)?be/, (ctx) => {
@@ -25,12 +48,10 @@ bot.command(["length", "duration"], async (ctx) => {
   const params = ctx.message.text.split(" ");
   if (params.length === 1) {
     const rick_url = "https://youtu.be/oHg5SJYRHA0";
-    await ctx.reply("Gets youtube video duration.");
+    await ctx.reply("Gets YouTube video duration.");
     const botMessage = await ctx.reply(`${params[0]} ${rick_url}`, {
       disable_web_page_preview: true,
     });
-
-    console.log(botMessage.message_id, ctx.message.message_id);
 
     await sendDurationReply(ctx, rick_url, botMessage.message_id);
     return;
@@ -63,10 +84,10 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 async function getDuration(url) {
   // Parsing an incorrect url or trying to create one with an invalid object will return undefined
-  const parsed = urlParser.parse(url);
-  if (parsed === undefined) return;
+  const parsedUrl = urlParser.parse(url);
+  if (parsedUrl === undefined) return;
 
-  const duration = await fetchDuration(parsed.id);
+  const duration = await fetchDuration(parsedUrl.id);
   return formatDuration(duration);
 }
 
@@ -80,5 +101,12 @@ async function sendDurationReply(ctx, url, reply_id) {
     });
   }
 
-  ctx.reply("Could not parse the YouTube's url");
+  ctx.reply("Could not parse YouTube's url");
+}
+
+function secondsToHms(timestamp) {
+  const hours = Math.floor(timestamp / 3600);
+  const minutes = Math.floor((timestamp % 3600) / 60);
+  const seconds = Math.floor((timestamp % 3600) % 60);
+  return { hours, minutes, seconds };
 }
