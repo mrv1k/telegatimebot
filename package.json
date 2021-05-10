@@ -7,7 +7,7 @@
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf dist",
     "ts-node": "ts-node",
-    "dev": "ts-node ./src/bot.ts",
+    "dev": "ts-node --files ./src/bot.ts",
     "build": "tsc -p tsconfig.json"
   },
   "repository": {
