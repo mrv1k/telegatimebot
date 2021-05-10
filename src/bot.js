@@ -8,10 +8,9 @@ const fetchDuration = require("./fetchDuration");
 const formatDuration = require("./formatDuration");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.start((ctx) => ctx.reply("Welcome"));
+bot.start((ctx) => ctx.reply("Hey meatbags"));
 bot.help((ctx) =>
   ctx.reply(`
-Get video duration:
 /duration <url>
 `)
 );
@@ -20,19 +19,6 @@ Get video duration:
 bot.url(/youtu(\.)?be/, (ctx) => {
   const url = ctx.match.input;
   sendDurationReply(ctx, url);
-});
-
-bot.command("stfu", (ctx) => {
-  // TODO: silence mode
-});
-bot.command("unstfu", (ctx) => {
-  // TODO: disable silenec mode
-});
-bot.command("gtfo", (ctx) => {
-  ctx.reply("Self-destruct initiated");
-  setTimeout(() => {
-    ctx.leaveChat();
-  }, 1000);
 });
 
 bot.command(["length", "duration"], async (ctx) => {
@@ -54,6 +40,19 @@ bot.command(["length", "duration"], async (ctx) => {
   await sendDurationReply(ctx, url);
 });
 
+bot.command("stfu", (ctx) => {
+  // TODO: silence mode
+});
+bot.command("unstfu", (ctx) => {
+  // TODO: disable silenec mode
+});
+bot.command("gtfo", (ctx) => {
+  ctx.reply("Self-destruct initiated");
+  setTimeout(() => {
+    ctx.leaveChat();
+  }, 1000);
+});
+
 bot.launch();
 
 console.log("I am ALIVE!");
@@ -65,9 +64,8 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 async function getDuration(url) {
   // Parsing an incorrect url or trying to create one with an invalid object will return undefined
   const parsed = urlParser.parse(url);
-  if (parsed === undefined) {
-    return ctx.reply("Could not parse the YouTube's url");
-  }
+  if (parsed === undefined) return;
+
   const duration = await fetchDuration(parsed.id);
   return formatDuration(duration);
 }
@@ -76,7 +74,11 @@ async function sendDurationReply(ctx, url, reply_id) {
   let reply_to_message_id = reply_id ?? ctx.message.message_id;
   const duration = await getDuration(url);
 
-  ctx.reply(`Duration: ${duration}`, {
-    reply_to_message_id,
-  });
+  if (duration) {
+    return ctx.reply(`Duration: ${duration}`, {
+      reply_to_message_id,
+    });
+  }
+
+  ctx.reply("Could not parse the YouTube's url");
 }
