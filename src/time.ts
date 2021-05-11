@@ -1,15 +1,14 @@
 const pad0 = (digit: number) => `${digit <= 9 ? "0" : ""}${digit}`;
 
-type ParsedTime = {
+type Time = {
   days?: number;
   hours?: number;
   minutes?: number;
   seconds?: number;
 };
 
-export function formatTime(time: ParsedTime): string {
+export function formatTime(time: Time): string {
   const { days = 0, hours = 0, minutes = 0, seconds = 0 } = time;
-  console.log(time);
 
   const hasSeconds = seconds !== 0;
   const hasMinutes = minutes !== 0;
@@ -37,13 +36,20 @@ export function formatTime(time: ParsedTime): string {
   return `${h}:${mm}:${ss}`;
 }
 
-const HOUR = 3600;
+const MINUTE = 60;
+const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
 
-export function secondsToTime(timestamp: number): ParsedTime {
-  const days = Math.floor(timestamp / DAY);
-  const hours = Math.floor((timestamp % DAY) / HOUR);
-  const minutes = Math.floor((timestamp % HOUR) / 60);
-  const seconds = Math.floor((timestamp % HOUR) % 60);
+export function secondsToTime(timestamp: number): Time {
+  let time = timestamp;
+  const days = Math.floor(time / DAY);
+  time -= days * DAY;
+  const hours = Math.floor(time / HOUR);
+  time -= hours * HOUR;
+  const minutes = Math.floor(time / MINUTE);
+  time -= minutes * MINUTE;
+  const seconds = time;
+  time -= seconds;
+
   return { days, hours, minutes, seconds };
 }
