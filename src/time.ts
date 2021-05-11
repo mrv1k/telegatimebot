@@ -1,9 +1,15 @@
-import { Duration } from "iso8601-duration";
-
 const pad0 = (digit: number) => `${digit <= 9 ? "0" : ""}${digit}`;
 
-export default function formatDuration(parsedDuration: Duration): string {
-  const { days = 0, hours = 0, minutes = 0, seconds = 0 } = parsedDuration;
+type ParsedTime = {
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+};
+
+export function formatTime(time: ParsedTime): string {
+  const { days = 0, hours = 0, minutes = 0, seconds = 0 } = time;
+  console.log(time);
 
   const hasSeconds = seconds !== 0;
   const hasMinutes = minutes !== 0;
@@ -29,4 +35,15 @@ export default function formatDuration(parsedDuration: Duration): string {
   if (hasDays) h += days * 24;
 
   return `${h}:${mm}:${ss}`;
+}
+
+const HOUR = 3600;
+const DAY = HOUR * 24;
+
+export function secondsToTime(timestamp: number): ParsedTime {
+  const days = Math.floor(timestamp / DAY);
+  const hours = Math.floor((timestamp % DAY) / HOUR);
+  const minutes = Math.floor((timestamp % HOUR) / 60);
+  const seconds = Math.floor((timestamp % HOUR) % 60);
+  return { days, hours, minutes, seconds };
 }

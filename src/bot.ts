@@ -6,7 +6,7 @@ import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
 
 import fetchDuration from "./fetchDuration";
-import formatDuration from "./formatDuration";
+import { formatTime, secondsToTime } from "./time";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start((ctx) => ctx.reply("Hey meatbags"));
@@ -36,7 +36,8 @@ bot.command("timestamp", async (ctx) => {
   }
 
   const timestamp: number = urlParams.start;
-  const formattedTime = formatDuration(secondsToHms(timestamp));
+
+  const formattedTime = formatTime(secondsToTime(timestamp));
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
 
@@ -95,35 +96,9 @@ async function getDuration(url: string) {
   if (parsedUrl === undefined) return;
 
   const duration = await fetchDuration(parsedUrl.id);
-  return formatDuration(duration);
+  return formatTime(duration);
 }
 
-/** Takes: a context type and an update type (or message subtype).
-    Produces: a context that has some properties required, and some undefined.
-    The required ones are those that are always present when the given update (or message) arrives.
-    The undefined ones are those that are always absent when the given update (or message) arrives. */
-// type MatchedContext<
-//   C extends Context,
-//   T extends tt.UpdateType | tt.MessageSubType
-// > = NarrowedContext<C, tt.MountMap[T]>;
-
-/**
- * Narrows down `C['update']` (and derived getters)
- * to specific update type `U`.
- *
- * Used by [[`Composer`]],
- * possibly useful for splitting a bot into multiple files.
- */
-// export type NarrowedContext<
-//   C extends Context,
-//   U extends tg.Update
-// > = Context<U> & Omit<C, keyof Context>;
-
-// (parameter) ctx: MatchedContext<Context<Update>, "text">
-
-// MatchedContext<Context<Update> & {
-//   match: RegExpExecArray;
-// }, "channel_post" | "message">
 async function sendDurationReply<CTX extends Context>(
   ctx: CTX,
   url: string,
@@ -141,11 +116,4 @@ async function sendDurationReply<CTX extends Context>(
   }
 
   ctx.reply("Could not parse YouTube's url");
-}
-
-function secondsToHms(timestamp: number) {
-  const hours = Math.floor(timestamp / 3600);
-  const minutes = Math.floor((timestamp % 3600) / 60);
-  const seconds = Math.floor((timestamp % 3600) % 60);
-  return { hours, minutes, seconds };
 }
