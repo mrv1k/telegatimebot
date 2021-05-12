@@ -1,3 +1,8 @@
+// How Telegram extracts id and timestamp extractYoutubeVideoIdAndTimestamp
+// https://github.com/TelegramMessenger/Telegram-iOS/blob/release-7.6.2/submodules/TelegramUniversalVideoContent/Sources/YoutubeEmbedImplementation.swift#L12
+// Telegram formats video timestamp in military time (not 100% sure)
+// https://github.com/TelegramMessenger/Telegram-iOS/blob/release-7.6.2/submodules/TelegramStringFormatting/Sources/DateFormat.swift#L29
+
 const pad0 = (digit: number) => `${digit <= 9 ? "0" : ""}${digit}`;
 
 type Time = {

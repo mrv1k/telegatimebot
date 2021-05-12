@@ -32,22 +32,19 @@ bot.help((ctx) =>
 `)
 );
 
-// TODO: enable users to send command via reply
-// bot.command("t", async (ctx) => {
-//   console.log(ctx.message.reply_to_message);
-// });
-
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
-bot.command("timestamp", async (ctx) => {
-  const urlArg = findFirstArg(ctx.message.text);
+// TODO: enable users to send command via reply
+//   console.log(ctx.message.reply_to_message);
+bot.command(["t", "timestamp"], async (ctx) => {
+  const argUrl = findFirstArg(ctx.message.text);
 
-  if (!urlArg) {
+  if (!argUrl) {
     const command = ctx.message.text;
     return ctx.reply(`${command} <url>?timestamp=123`);
   }
 
-  const parsedUrl = urlParser.parse(urlArg);
+  const parsedUrl = urlParser.parse(argUrl);
   if (!parsedUrl) return ctx.reply("Could not parse YouTube's url");
 
   const urlParams = parsedUrl?.params;
@@ -60,21 +57,10 @@ bot.command("timestamp", async (ctx) => {
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
 
-/**
- * 1. check if has youtube url
- *  a) if true - parse url
- *    parsed == undefined { reply with error }
- *    parsed success
- *      check if has timestamp
- *      if false { reply with duration }
- *      if true { reply with timestamp }
- */
 // regex tests - https://regexr.com/5si73
 bot.url(/youtu(\.)?be/, async (ctx) => {
-  console.log("toggle", settings.duration);
-
-  const url = ctx.match.input;
-  const parsedUrl = urlParser.parse(url);
+  const matchedUrl = ctx.match.input;
+  const parsedUrl = urlParser.parse(matchedUrl);
   if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
 
   const messages: string[] = [];
@@ -104,26 +90,32 @@ bot.url(/youtu(\.)?be/, async (ctx) => {
   ctx.replyWithMarkdownV2(message, options);
 });
 
-// bot.command(["length", "duration"], async (ctx) => {
-//   const urlArg = findFirstArg(ctx.message.text);
+bot.command(["d", "duration"], async (ctx) => {
+  const argUrl = findFirstArg(ctx.message.text);
 
-//   if (!urlArg) {
-//     await ctx.reply("Gets YouTube video duration.");
-//     const command = ctx.message.text;
-//     const urlRick = "https://youtu.be/oHg5SJYRHA0";
-//     const botMessage = await ctx.reply(`${command} ${urlRick}`, {
-//       disable_web_page_preview: true,
-//     });
+  if (!argUrl) {
+    await ctx.reply("Gets YouTube video duration.");
+    const command = ctx.message.text;
+    const rickUrl = "https://youtu.be/oHg5SJYRHA0";
+    const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
+      disable_web_page_preview: true,
+    });
 
-//     const parsedUrl = urlParser.parse(url);
-//     if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
-//     getDurationText();
+    const stubbedParseUrl = { id: "oHg5SJYRHA0" };
+    const durationText = await getDurationText(stubbedParseUrl);
+    return ctx.replyWithMarkdownV2(durationText, {
+      reply_to_message_id: botMessage.message_id,
+    });
+  }
 
-//     return getDurationText(ctx, urlRick, botMessage.message_id);
-//   }
+  const parsedUrl = urlParser.parse(argUrl);
+  if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
 
-//   getDurationText(ctx, urlArg);
-// });
+  const duration = await getDurationText(parsedUrl);
+  return ctx.replyWithMarkdownV2(duration, {
+    reply_to_message_id: ctx.message.message_id,
+  });
+});
 
 bot.command("stfu", (ctx) => {
   // TODO: silence mode
@@ -155,6 +147,7 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 async function getDurationText(parsedUrl: VideoInfo) {
   const duration = await fetchDuration(parsedUrl.id);
+  // use underscore to display as italic with markdown renderer to prevent rendering as linking as timestamp
   return `Duration: _${formatTime(duration)}_`;
 }
 
