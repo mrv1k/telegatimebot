@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { Telegraf } from "telegraf";
+import { Telegraf, Composer } from "telegraf";
 import { Context } from "telegraf/typings";
 import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
@@ -9,13 +9,21 @@ import fetchDuration from "./fetchDuration";
 import { formatTime, secondsToTime } from "./time";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
 bot.start((ctx) => ctx.reply("Hey meatbags"));
 bot.help((ctx) =>
   ctx.reply(`
-/duration <url>
-/timestamp <url>?t=666
+/[d]uration <url>
+/[t]imestamp <url>?t=666
 `)
 );
+
+// TODO: enable users to send command via reply
+// bot.command("t", async (ctx) => {
+//   console.log(ctx.message.reply_to_message);
+// });
+
+if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
 bot.command("timestamp", async (ctx) => {
   const params = ctx.message.text.split(" ");
@@ -41,11 +49,27 @@ bot.command("timestamp", async (ctx) => {
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
 
-// regex tests - https://regexr.com/5si73
-bot.url(/youtu(\.)?be/, (ctx) => {
-  const url = ctx.match.input;
-  sendDurationReply(ctx, url);
+const settings = {
+  duration: true,
+};
+
+bot.command("/durationtoggle", () => {
+  settings.duration = !settings.duration;
 });
+
+// regex tests - https://regexr.com/5si73
+bot.url(
+  /youtu(\.)?be/,
+  Composer.optional(
+    () => settings.duration,
+    (ctx) => {
+      console.log("toggle", settings.duration);
+
+      const url = ctx.match.input;
+      sendDurationReply(ctx, url);
+    }
+  )
+);
 
 bot.command(["length", "duration"], async (ctx) => {
   const params = ctx.message.text.split(" ");
@@ -77,14 +101,16 @@ bot.command("gtfo", (ctx) => {
   }, 1000);
 });
 
+bot.settings((ctx) => {
+  console.log("settings!");
+});
 bot.catch((err, ctx) => {
+  // "¯\\_(ツ)_/¯ It's a live stream";
   console.log(err);
 });
 
 bot.launch();
-
 console.log("I am ALIVE!");
-// "¯\\_(ツ)_/¯ It's a live stream";
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
