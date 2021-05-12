@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { Telegraf, Composer } from "telegraf";
+import { Telegraf } from "telegraf";
 import { Context } from "telegraf/typings";
 import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
@@ -9,6 +9,19 @@ import fetchDuration from "./fetchDuration";
 import { formatTime, secondsToTime } from "./time";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
+// TODO: refactor to work for multiple chats
+const settings = {
+  duration: true,
+  timestamp: true,
+};
+
+bot.command("/durationtoggle", () => {
+  settings.duration = !settings.duration;
+});
+bot.command("/timestamptoggle", () => {
+  settings.duration = !settings.duration;
+});
 
 bot.start((ctx) => ctx.reply("Hey meatbags"));
 bot.help((ctx) =>
@@ -27,7 +40,11 @@ if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
 bot.command("timestamp", async (ctx) => {
   const urlArg = findFirstArg(ctx.message.text);
-  if (!urlArg) return ctx.reply("Converts to telegram timestamp.");
+
+  if (!urlArg) {
+    const command = ctx.message.text;
+    return ctx.reply(`${command} <url>?timestamp=123`);
+  }
 
   const parsedUrl = urlParser.parse(urlArg);
   if (!parsedUrl) return ctx.reply("Could not parse YouTube's url");
@@ -36,33 +53,45 @@ bot.command("timestamp", async (ctx) => {
   if (!urlParams || !Number.isFinite(urlParams.start)) {
     return ctx.reply("Could not parse timestamp");
   }
-
   const timestamp: number = urlParams.start;
+
   const formattedTime = formatTime(secondsToTime(timestamp));
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
 
-const settings = {
-  duration: true,
-};
-
-bot.command("/durationtoggle", () => {
-  settings.duration = !settings.duration;
-});
-
+/**
+ * 1. check if has youtube url
+ *  a) if true - parse url
+ *    parsed == undefined { reply with error }
+ *    parsed success
+ *      check if has timestamp
+ *      if false { reply with duration }
+ *      if true { reply with timestamp }
+ */
 // regex tests - https://regexr.com/5si73
-bot.url(
-  /youtu(\.)?be/,
-  Composer.optional(
-    () => settings.duration,
-    (ctx) => {
-      console.log("toggle", settings.duration);
+bot.url(/youtu(\.)?be/, (ctx) => {
+  console.log("toggle", settings.duration);
 
-      const url = ctx.match.input;
-      sendDurationReply(ctx, url);
+  const url = ctx.match.input;
+  const parsedUrl = urlParser.parse(url);
+  if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
+
+  if (settings.timestamp) {
+    // TODO: fix, copypasted timestamp command
+    const urlParams = parsedUrl?.params;
+    if (urlParams && Number.isFinite(urlParams.start)) {
+      // don't say anything during inline mode?
+      const timestamp: number = urlParams.start;
+
+      const formattedTime = formatTime(secondsToTime(timestamp));
+      ctx.reply(formattedTime, {
+        reply_to_message_id: ctx.message?.message_id,
+      });
     }
-  )
-);
+  }
+
+  if (settings.duration) sendDurationReply(ctx, url);
+});
 
 bot.command(["length", "duration"], async (ctx) => {
   const urlArg = findFirstArg(ctx.message.text);
