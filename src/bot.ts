@@ -26,17 +26,11 @@ bot.help((ctx) =>
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
 bot.command("timestamp", async (ctx) => {
-  const params = ctx.message.text.split(" ");
-  if (params.length === 1) {
-    return ctx.reply("Converts to telegram timestamp.");
-  }
+  const urlArg = findFirstArg(ctx.message.text);
+  if (!urlArg) return ctx.reply("Converts to telegram timestamp.");
 
-  const url = params[1];
-  const parsedUrl = urlParser.parse(url);
-
-  if (!parsedUrl) {
-    return ctx.reply("Could not parse YouTube's url");
-  }
+  const parsedUrl = urlParser.parse(urlArg);
+  if (!parsedUrl) return ctx.reply("Could not parse YouTube's url");
 
   const urlParams = parsedUrl?.params;
   if (!urlParams || !Number.isFinite(urlParams.start)) {
@@ -44,7 +38,6 @@ bot.command("timestamp", async (ctx) => {
   }
 
   const timestamp: number = urlParams.start;
-
   const formattedTime = formatTime(secondsToTime(timestamp));
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
@@ -72,20 +65,19 @@ bot.url(
 );
 
 bot.command(["length", "duration"], async (ctx) => {
-  const params = ctx.message.text.split(" ");
-  if (params.length === 1) {
+  const urlArg = findFirstArg(ctx.message.text);
+
+  if (!urlArg) {
     const rick_url = "https://youtu.be/oHg5SJYRHA0";
     await ctx.reply("Gets YouTube video duration.");
-    const botMessage = await ctx.reply(`${params[0]} ${rick_url}`, {
+    const command = ctx.message.text;
+    const botMessage = await ctx.reply(`${command} ${rick_url}`, {
       disable_web_page_preview: true,
     });
-
-    await sendDurationReply(ctx, rick_url, botMessage.message_id);
-    return;
+    return sendDurationReply(ctx, rick_url, botMessage.message_id);
   }
 
-  const url = params[1];
-  await sendDurationReply(ctx, url);
+  sendDurationReply(ctx, urlArg);
 });
 
 bot.command("stfu", (ctx) => {
@@ -116,7 +108,7 @@ console.log("I am ALIVE!");
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
-async function getDuration(url: string) {
+async function processDuration(url: string) {
   // Parsing an incorrect url or trying to create one with an invalid object will return undefined
   const parsedUrl = urlParser.parse(url);
   if (parsedUrl === undefined) return;
@@ -131,9 +123,9 @@ async function sendDurationReply<CTX extends Context>(
   reply_id?: number
 ) {
   if (ctx === undefined) return;
-  // ctx.mess
+
   const reply_to_message_id = reply_id ?? ctx.message?.message_id;
-  const duration = await getDuration(url);
+  const duration = await processDuration(url);
 
   if (duration) {
     return ctx.reply(`Duration: ${duration}`, {
@@ -142,4 +134,10 @@ async function sendDurationReply<CTX extends Context>(
   }
 
   ctx.reply("Could not parse YouTube's url");
+}
+
+function findFirstArg(text: string) {
+  const parts = text.split(/ +/);
+  if (parts.length === 1) return false;
+  return parts[1];
 }
