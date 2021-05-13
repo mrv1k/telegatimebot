@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { Telegraf } from "telegraf";
+import { Markup, Telegraf } from "telegraf";
 import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
 
@@ -24,7 +24,15 @@ bot.command("/timestamptoggle", () => {
   settings.duration = !settings.duration;
 });
 
-bot.start((ctx) => ctx.reply("Hey meatbags"));
+bot.command("hi", (ctx) => {
+  ctx.reply("Hey meatbags");
+});
+bot.command("bye", (ctx) => {
+  ctx.reply("Self-destruct initiated");
+  setTimeout(() => {
+    ctx.leaveChat();
+  }, 1000);
+});
 bot.help((ctx) =>
   ctx.reply(`
 /[d]uration <url>
@@ -117,22 +125,28 @@ bot.command(["d", "duration"], async (ctx) => {
   });
 });
 
-bot.command("stfu", (ctx) => {
-  // TODO: silence mode
+bot.settings((ctx) => {
+  ctx.replyWithHTML("Settings", {
+    // TODO: should toggle between enable/disable
+    ...Markup.inlineKeyboard([
+      [Markup.button.callback("Disable all", "disable_all")],
+      [
+        Markup.button.callback("Disable duration", "disable_duration"),
+        Markup.button.callback("Disable timestamp", "disable_timestamp"),
+      ],
+    ]),
+  });
 });
-bot.command("unstfu", (ctx) => {
-  // TODO: disable silenec mode
+bot.action("disable_all", (ctx) => {
+  console.log("disable_all", ctx);
 });
-bot.command("gtfo", (ctx) => {
-  ctx.reply("Self-destruct initiated");
-  setTimeout(() => {
-    ctx.leaveChat();
-  }, 1000);
+bot.action("disable_duration", (ctx) => {
+  console.log("disable_duration", ctx);
+});
+bot.action("disable_timestamp", (ctx) => {
+  console.log("disable_timestamp", ctx);
 });
 
-bot.settings((ctx) => {
-  console.log("settings!");
-});
 bot.catch((err, ctx) => {
   // "¯\\_(ツ)_/¯ It's a live stream";
   console.log(err);
