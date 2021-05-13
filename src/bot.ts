@@ -52,12 +52,11 @@ bot.command(["t", "timestamp"], async (ctx) => {
     return ctx.reply(`${command} <url>?timestamp=123`);
   }
 
-  const parsedUrl = urlParser.parse(textArg);
-  if (!parsedUrl) return ctx.reply("Could not parse YouTube's url");
+  const parsedUrl = parseUrl(textArg);
 
   const urlParams = parsedUrl?.params;
   if (!urlParams || !Number.isFinite(urlParams.start)) {
-    return ctx.reply("Could not parse timestamp");
+    throw Error("Could not parse timestamp");
   }
   const timestamp: number = urlParams.start;
 
@@ -65,13 +64,15 @@ bot.command(["t", "timestamp"], async (ctx) => {
   ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
 
-const YOUTUBE_URL_REGEX = /youtu(\.)?be/;
-// regex tests - https://regexr.com/5si73
+// TODO:
+// function parseTimestamp(parsedUrl: VideoInfo) {
+//   const t = parsedUrl.params;
+// }
 
-bot.url(YOUTUBE_URL_REGEX, async (ctx) => {
+// regex tests - https://regexr.com/5si73
+bot.url(/youtu(\.)?be/, async (ctx) => {
   const matchedUrl = ctx.match.input;
-  const parsedUrl = urlParser.parse(matchedUrl);
-  if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
+  const parsedUrl = parseUrl(matchedUrl);
 
   const messages: string[] = [];
 
@@ -100,14 +101,18 @@ bot.url(YOUTUBE_URL_REGEX, async (ctx) => {
   ctx.replyWithMarkdownV2(message, options);
 });
 
+function parseUrl(text: string) {
+  const parsedUrl = urlParser.parse(text);
+  if (parsedUrl) return parsedUrl;
+  throw Error("Could not parse YouTube's URL");
+}
+
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
   const replyArg = deunionize(ctx.message.reply_to_message);
 
   if (replyArg && replyArg.text) {
-    const parsedUrl = urlParser.parse(replyArg.text);
-    if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
-
+    const parsedUrl = parseUrl(replyArg.text);
     const duration = await getDurationText(parsedUrl);
     return ctx.replyWithMarkdownV2(duration, {
       reply_to_message_id: replyArg.message_id,
@@ -115,9 +120,7 @@ bot.command(["d", "duration"], async (ctx) => {
   }
 
   if (textArg) {
-    const parsedUrl = urlParser.parse(textArg);
-    if (!parsedUrl) return ctx.reply("Could not parse YouTube's URL");
-
+    const parsedUrl = parseUrl(textArg);
     const duration = await getDurationText(parsedUrl);
     return ctx.replyWithMarkdownV2(duration, {
       reply_to_message_id: ctx.message.message_id,
@@ -163,7 +166,8 @@ bot.action("disable_timestamp", (ctx) => {
 
 bot.catch((err, ctx) => {
   // "¯\\_(ツ)_/¯ It's a live stream";
-  console.log(err);
+  console.log("caught!", err);
+  ctx.reply("apologies, something broke");
 });
 
 bot.launch();

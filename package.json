@@ -8,6 +8,7 @@
     "clean": "rm -rf dist",
     "ts-node": "ts-node",
     "dev": "ts-node --files ./src/bot.ts",
+    "debug": "NODE_ENV=debug ts-node --files ./src/bot.ts",
     "build": "tsc -p tsconfig.json"
   },
   "repository": {
