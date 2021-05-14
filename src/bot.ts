@@ -1,13 +1,16 @@
 import "dotenv/config";
 
 import { deunionize, Markup, Telegraf } from "telegraf";
-import urlParser from "js-video-url-parser/lib/base";
-import "js-video-url-parser/lib/provider/youtube";
-
-import fetchDuration from "./fetchDuration";
-import { formatTime, secondsToTime } from "./time";
-import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
 import type { ExtraReplyMessage } from "telegraf/typings/telegram-types";
+
+import {
+  findFirstArg,
+  getDurationText,
+  getTimestampText,
+  getUrlTimestamp,
+  getUrlTimestampOrThrow,
+  parseUrl,
+} from "./core";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -17,26 +20,52 @@ const settings = {
   timestamp: true,
 };
 
-bot.command("/durationtoggle", () => {
-  settings.duration = !settings.duration;
+bot.settings((ctx) => {
+  ctx.replyWithHTML("Settings", {
+    // TODO: should toggle between enable/disable
+    ...Markup.inlineKeyboard([
+      [Markup.button.callback("Disable all", "disable_all")],
+      [
+        Markup.button.callback("Disable duration", "disable_duration"),
+        Markup.button.callback("Disable timestamp", "disable_timestamp"),
+      ],
+    ]),
+  });
 });
-bot.command("/timestamptoggle", () => {
+bot.action("disable_all", (ctx) => {
+  console.log("disable_all", ctx);
+  settings.duration = false;
+  settings.timestamp = false;
+});
+bot.action("disable_duration", (ctx) => {
   settings.duration = !settings.duration;
+  console.log("disable_duration", ctx);
+});
+bot.action("disable_timestamp", (ctx) => {
+  settings.timestamp = !settings.timestamp;
+  console.log("disable_timestamp", ctx);
 });
 
+// special hi for jembo's bot
 bot.command("hi", (ctx) => {
   ctx.reply("Hey meatbags");
 });
+
 bot.command("bye", (ctx) => {
   ctx.reply("Self-destruct initiated");
   setTimeout(() => {
     ctx.leaveChat();
   }, 1000);
 });
+
 bot.help((ctx) =>
   ctx.reply(`
-/[d]uration <url>
-/[t]imestamp <url>?t=666
+/duration <url> - display video duration
+/timestamp <url>?t=123 - convert to telegram timestamp
+/settings - open settings
+
+/d - shorthand for /duration
+/t - shorthand for /timestamp
 `)
 );
 
@@ -67,9 +96,10 @@ bot.command(["t", "timestamp"], async (ctx) => {
   }
 
   const command = ctx.message.text;
-  return ctx.reply(`${command} <url>?timestamp=123`);
+  return ctx.reply(`${command} <url>?timestamp=666`);
 });
 
+// Listen for text with url containing youtube
 // regex tests - https://regexr.com/5si73
 bot.url(/youtu(\.)?be/, async (ctx) => {
   const matchedUrl = ctx.match.input;
@@ -129,28 +159,7 @@ bot.command(["d", "duration"], async (ctx) => {
   });
 });
 
-bot.settings((ctx) => {
-  ctx.replyWithHTML("Settings", {
-    // TODO: should toggle between enable/disable
-    ...Markup.inlineKeyboard([
-      [Markup.button.callback("Disable all", "disable_all")],
-      [
-        Markup.button.callback("Disable duration", "disable_duration"),
-        Markup.button.callback("Disable timestamp", "disable_timestamp"),
-      ],
-    ]),
-  });
-});
-bot.action("disable_all", (ctx) => {
-  console.log("disable_all", ctx);
-});
-bot.action("disable_duration", (ctx) => {
-  console.log("disable_duration", ctx);
-});
-bot.action("disable_timestamp", (ctx) => {
-  console.log("disable_timestamp", ctx);
-});
-
+// TODO: Display user friend error messages
 bot.catch((err, ctx) => {
   // "¯\\_(ツ)_/¯ It's a live stream";
   console.log("caught!", err);
@@ -163,42 +172,3 @@ console.log("I am ALIVE!");
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
-
-function parseUrl(text: string) {
-  const parsedUrl = urlParser.parse(text);
-  if (parsedUrl) return parsedUrl;
-  throw Error("Could not parse YouTube's URL");
-}
-
-function getUrlTimestamp(parsedUrl: VideoInfo) {
-  const params = parsedUrl?.params;
-
-  // url parser uses 0 if ?t param is found but failed to parse, ie: ?t=123a or ?t=-1
-  if (params && typeof params.start === "number" && params.start > 0) {
-    // start is timestamp
-    return params.start;
-  }
-}
-
-function getUrlTimestampOrThrow(parsedUrl: VideoInfo) {
-  const parsed = getUrlTimestamp(parsedUrl);
-  if (parsed) return parsed;
-  throw Error("Could not get timestamp");
-}
-
-function getTimestampText(timestamp: number) {
-  const timestampText = formatTime(secondsToTime(timestamp));
-  return `Timestamp: ${timestampText}`;
-}
-
-async function getDurationText(parsedUrl: VideoInfo) {
-  const duration = await fetchDuration(parsedUrl.id);
-  // use underscore to display as italic with markdown renderer to break rendering as clickable timestamp
-  return `Duration: _${formatTime(duration)}_`;
-}
-
-function findFirstArg(text: string) {
-  const parts = text.split(/ +/);
-  if (parts.length === 1) return false;
-  return parts[1];
-}
