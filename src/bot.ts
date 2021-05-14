@@ -20,33 +20,43 @@ const settings = {
   timestamp: true,
 };
 
+const word = (setting: boolean) => (setting ? "Disable" : "Enable");
 bot.settings((ctx) => {
   ctx.replyWithHTML("Settings", {
     // TODO: should toggle between enable/disable
     ...Markup.inlineKeyboard([
       [Markup.button.callback("Disable all", "disable_all")],
       [
-        Markup.button.callback("Disable duration", "disable_duration"),
-        Markup.button.callback("Disable timestamp", "disable_timestamp"),
+        Markup.button.callback(
+          `${word(settings.duration)} duration`,
+          "toggle_duration"
+        ),
+        Markup.button.callback(
+          `${word(settings.timestamp)} timestamp`,
+          "toggle_timestamp"
+        ),
       ],
     ]),
   });
 });
 bot.action("disable_all", (ctx) => {
-  console.log("disable_all", ctx);
+  console.log("disable_all");
   settings.duration = false;
   settings.timestamp = false;
+  ctx.answerCbQuery();
 });
-bot.action("disable_duration", (ctx) => {
+bot.action("toggle_duration", (ctx) => {
   settings.duration = !settings.duration;
-  console.log("disable_duration", ctx);
+  console.log("toggle_duration", ctx);
+  ctx.answerCbQuery();
 });
-bot.action("disable_timestamp", (ctx) => {
+bot.action("toggle_timestamp", (ctx) => {
   settings.timestamp = !settings.timestamp;
-  console.log("disable_timestamp", ctx);
+  console.log("toggle_timestamp", ctx);
+  ctx.answerCbQuery();
 });
 
-// special hi for jembo's bot
+// TODO: special hi for jembo's bot
 bot.command("hi", (ctx) => {
   ctx.reply("Hey meatbags");
 });
@@ -102,6 +112,8 @@ bot.command(["t", "timestamp"], async (ctx) => {
 // Listen for text with url containing youtube
 // regex tests - https://regexr.com/5si73
 bot.url(/youtu(\.)?be/, async (ctx) => {
+  if (!settings.timestamp && !settings.duration) return;
+
   const matchedUrl = ctx.match.input;
   const parsedUrl = parseUrl(matchedUrl);
 
