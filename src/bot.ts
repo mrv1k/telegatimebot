@@ -46,19 +46,28 @@ if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 //   console.log(ctx.message.reply_to_message);
 bot.command(["t", "timestamp"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
-
-  if (!textArg) {
-    const command = ctx.message.text;
-    return ctx.reply(`${command} <url>?timestamp=123`);
-  }
-
-  const parsedUrl = parseUrl(textArg);
-  const timestamp = parseUrlTimestamp(parsedUrl);
-
-  if (timestamp) {
+  if (textArg) {
+    const parsedUrl = parseUrl(textArg);
+    const timestamp = getUrlTimestampOrThrow(parsedUrl);
     const timestampText = getTimestampText(timestamp);
-    ctx.reply(timestampText, { reply_to_message_id: ctx.message.message_id });
+    return ctx.reply(timestampText, {
+      reply_to_message_id: ctx.message.message_id,
+    });
   }
+
+  // TODO: almost identical to duration reply
+  const replyArg = deunionize(ctx.message.reply_to_message);
+  if (replyArg && replyArg.text) {
+    const parsedUrl = parseUrl(replyArg.text);
+    const timestamp = getUrlTimestampOrThrow(parsedUrl);
+    const timestampText = getTimestampText(timestamp);
+    return ctx.replyWithMarkdownV2(timestampText, {
+      reply_to_message_id: replyArg.message_id,
+    });
+  }
+
+  const command = ctx.message.text;
+  return ctx.reply(`${command} <url>?timestamp=123`);
 });
 
 // regex tests - https://regexr.com/5si73
@@ -68,7 +77,7 @@ bot.url(/youtu(\.)?be/, async (ctx) => {
 
   const texts: string[] = [];
   if (settings.timestamp) {
-    const timestamp = parseUrlTimestamp(parsedUrl, { throws: false });
+    const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
     }
@@ -87,21 +96,21 @@ bot.url(/youtu(\.)?be/, async (ctx) => {
 
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
-  const replyArg = deunionize(ctx.message.reply_to_message);
-
-  if (replyArg && replyArg.text) {
-    const parsedUrl = parseUrl(replyArg.text);
-    const duration = await getDurationText(parsedUrl);
-    return ctx.replyWithMarkdownV2(duration, {
-      reply_to_message_id: replyArg.message_id,
-    });
-  }
 
   if (textArg) {
     const parsedUrl = parseUrl(textArg);
     const duration = await getDurationText(parsedUrl);
     return ctx.replyWithMarkdownV2(duration, {
       reply_to_message_id: ctx.message.message_id,
+    });
+  }
+
+  const replyArg = deunionize(ctx.message.reply_to_message);
+  if (replyArg && replyArg.text) {
+    const parsedUrl = parseUrl(replyArg.text);
+    const duration = await getDurationText(parsedUrl);
+    return ctx.replyWithMarkdownV2(duration, {
+      reply_to_message_id: replyArg.message_id,
     });
   }
 
@@ -161,7 +170,7 @@ function parseUrl(text: string) {
   throw Error("Could not parse YouTube's URL");
 }
 
-function parseUrlTimestamp(parsedUrl: VideoInfo, options = { throws: true }) {
+function getUrlTimestamp(parsedUrl: VideoInfo) {
   const params = parsedUrl?.params;
 
   // url parser uses 0 if ?t param is found but failed to parse, ie: ?t=123a or ?t=-1
@@ -169,7 +178,12 @@ function parseUrlTimestamp(parsedUrl: VideoInfo, options = { throws: true }) {
     // start is timestamp
     return params.start;
   }
-  if (options.throws) throw Error("Could not parse timestamp");
+}
+
+function getUrlTimestampOrThrow(parsedUrl: VideoInfo) {
+  const parsed = getUrlTimestamp(parsedUrl);
+  if (parsed) return parsed;
+  throw Error("Could not get timestamp");
 }
 
 function getTimestampText(timestamp: number) {
