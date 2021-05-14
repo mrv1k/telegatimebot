@@ -13,7 +13,7 @@ type Time = {
 };
 
 export function formatTime(time: Time): string {
-  const { days = 0, hours = 0, minutes = 0, seconds = 0 } = time;
+  const { seconds = 0, minutes = 0, hours = 0, days = 0 } = time;
 
   const hasSeconds = seconds !== 0;
   const hasMinutes = minutes !== 0;
@@ -22,8 +22,7 @@ export function formatTime(time: Time): string {
 
   const hasAll = [hasSeconds, hasMinutes, hasHours, hasDays];
   if (hasAll.every((v) => v === false)) {
-    return "will throw";
-    // throw Error("Duration: All numbers are 0");
+    throw Error("Nothing to format - seconds, minutes, hours and days are 0");
   }
 
   const onlySeconds = hasSeconds && !hasMinutes && !hasHours && !hasDays;

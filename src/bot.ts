@@ -53,59 +53,37 @@ bot.command(["t", "timestamp"], async (ctx) => {
   }
 
   const parsedUrl = parseUrl(textArg);
+  const timestamp = parseUrlTimestamp(parsedUrl);
 
-  const urlParams = parsedUrl?.params;
-  if (!urlParams || !Number.isFinite(urlParams.start)) {
-    throw Error("Could not parse timestamp");
+  if (timestamp) {
+    const timestampText = getTimestampText(timestamp);
+    ctx.reply(timestampText, { reply_to_message_id: ctx.message.message_id });
   }
-  const timestamp: number = urlParams.start;
-
-  const formattedTime = formatTime(secondsToTime(timestamp));
-  ctx.reply(formattedTime, { reply_to_message_id: ctx.message.message_id });
 });
-
-// TODO:
-// function parseTimestamp(parsedUrl: VideoInfo) {
-//   const t = parsedUrl.params;
-// }
 
 // regex tests - https://regexr.com/5si73
 bot.url(/youtu(\.)?be/, async (ctx) => {
   const matchedUrl = ctx.match.input;
   const parsedUrl = parseUrl(matchedUrl);
 
-  const messages: string[] = [];
-
+  const texts: string[] = [];
   if (settings.timestamp) {
-    // TODO: fix, copypasted timestamp command
-    const urlParams = parsedUrl?.params;
-    if (urlParams && Number.isFinite(urlParams.start)) {
-      // don't say anything during inline mode?
-      const timestamp: number = urlParams.start;
-
-      const timestampText = formatTime(secondsToTime(timestamp));
-      messages.push(`Timestamp: ${timestampText}`);
+    const timestamp = parseUrlTimestamp(parsedUrl, { throws: false });
+    if (timestamp) {
+      texts.push(getTimestampText(timestamp));
     }
   }
-
   if (settings.duration) {
-    const durationText = await getDurationText(parsedUrl);
-    messages.push(durationText);
+    texts.push(await getDurationText(parsedUrl));
   }
+  const text = texts.join("\n");
 
-  const message = messages.join("\n");
   const options: ExtraReplyMessage = {
     reply_to_message_id: ctx.message?.message_id,
     disable_notification: true,
   };
-  ctx.replyWithMarkdownV2(message, options);
+  ctx.replyWithMarkdownV2(text, options);
 });
-
-function parseUrl(text: string) {
-  const parsedUrl = urlParser.parse(text);
-  if (parsedUrl) return parsedUrl;
-  throw Error("Could not parse YouTube's URL");
-}
 
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
@@ -177,9 +155,31 @@ console.log("I am ALIVE!");
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
+function parseUrl(text: string) {
+  const parsedUrl = urlParser.parse(text);
+  if (parsedUrl) return parsedUrl;
+  throw Error("Could not parse YouTube's URL");
+}
+
+function parseUrlTimestamp(parsedUrl: VideoInfo, options = { throws: true }) {
+  const params = parsedUrl?.params;
+
+  // url parser uses 0 if ?t param is found but failed to parse, ie: ?t=123a or ?t=-1
+  if (params && typeof params.start === "number" && params.start > 0) {
+    // start is timestamp
+    return params.start;
+  }
+  if (options.throws) throw Error("Could not parse timestamp");
+}
+
+function getTimestampText(timestamp: number) {
+  const timestampText = formatTime(secondsToTime(timestamp));
+  return `Timestamp: ${timestampText}`;
+}
+
 async function getDurationText(parsedUrl: VideoInfo) {
   const duration = await fetchDuration(parsedUrl.id);
-  // use underscore to display as italic with markdown renderer to prevent rendering as linking as timestamp
+  // use underscore to display as italic with markdown renderer to break rendering as clickable timestamp
   return `Duration: _${formatTime(duration)}_`;
 }
 
