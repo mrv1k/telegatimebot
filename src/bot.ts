@@ -109,16 +109,27 @@ bot.command(["t", "timestamp"], async (ctx) => {
   return ctx.reply(`${command} <url>?timestamp=666`);
 });
 
-// Listen for text with url containing youtube
-// regex tests - https://regexr.com/5si73
-bot.url(/youtu(\.)?be/, async (ctx) => {
+const REG_EXP = {
+  // Match youtube or youtu.be; tests - https://regexr.com/5sve6
+  YOUTUBE_URL: /youtu(\.)?be/,
+  // Match anything between 0:00 to 99:99:99; Tests - https://regexr.com/5svdb
+  // starting space is not a typo
+  TELEGRAM_TIMESTAMP: / (\d{1,2}:\d{1,2}(?::\d{1,2})?)/,
+};
+
+const noUserTimestamp = (text = "") => !REG_EXP.TELEGRAM_TIMESTAMP.test(text);
+
+// Listen for texts containing YouTube's url
+bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   if (!settings.timestamp && !settings.duration) return;
 
-  const matchedUrl = ctx.match.input;
-  const parsedUrl = parseUrl(matchedUrl);
+  const input = ctx.match.input;
+  const parsedUrl = parseUrl(input);
 
   const texts: string[] = [];
-  if (settings.timestamp) {
+
+  const message = deunionize(ctx.message)?.text;
+  if (settings.timestamp && noUserTimestamp(message)) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
