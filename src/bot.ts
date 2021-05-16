@@ -68,16 +68,37 @@ bot.command("bye", (ctx) => {
   }, 1000);
 });
 
-bot.help((ctx) =>
-  ctx.reply(`
-/duration <url> - display video duration
-/timestamp <url>?t=123 - convert to telegram timestamp
-/settings - open settings
+// Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
+const HELP_MESSAGE = `
+You can control me by sending these *commands*:
+/duration \\<link\\> \\- display video duration
+/timestamp \\<link with timestamp\\> \\- create telegram timestamp
+/settings \\- open settings
+/help \\- display help message
 
-/d - shorthand for /duration
-/t - shorthand for /timestamp
-`)
-);
+*Shorthands:*
+/d \\- for /duration
+/t \\- for /timestamp
+
+_To avoid polluting commands only /duration and /timestamp are added to the list of commands_
+`;
+bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
+
+// Every chat with bot starts from /start.
+bot.start((ctx) => {
+  const startMessage =
+    `
+I help you by replying to YouTube's link with:
+1\\. Video duration
+2\\. Telegram friendly timestamp
+
+By default, I automatically listen to YouTube's links\\. \
+Just send a message and I'll fetch the info\\! \
+Can be disabled in /settings
+` + HELP_MESSAGE;
+
+  ctx.replyWithMarkdownV2(startMessage);
+});
 
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
