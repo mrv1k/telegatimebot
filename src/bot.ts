@@ -24,7 +24,6 @@ const settings = {
 const word = (setting: boolean) => (setting ? "Disable" : "Enable");
 bot.settings((ctx) => {
   ctx.replyWithHTML("Settings", {
-    // TODO: should toggle between enable/disable
     ...Markup.inlineKeyboard([
       [Markup.button.callback("Disable all", "disable_all")],
       [
@@ -75,8 +74,6 @@ bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
 
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
-// TODO: enable users to send command via reply
-//   console.log(ctx.message.reply_to_message);
 bot.command(["t", "timestamp"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
   if (textArg) {
@@ -106,12 +103,11 @@ bot.command(["t", "timestamp"], async (ctx) => {
 const REG_EXP = {
   // Match youtube or youtu.be; tests - https://regexr.com/5sve6
   YOUTUBE_URL: /youtu(\.)?be/,
-  // Match anything between 0:00 to 99:99:99; Tests - https://regexr.com/5svdb
-  // starting space is not a typo
-  TELEGRAM_TIMESTAMP: / (\d{1,2}:\d{1,2}(?::\d{1,2})?)/,
+  // Match anything between 0:00 to 99:99:99; Tests - https://regexr.com/5t1ib
+  TELEGRAM_TIMESTAMP: /(\d{1,2}:\d{1,2}(?::\d{1,2})?)/,
 };
 
-const noUserTimestamp = (text = "") => !REG_EXP.TELEGRAM_TIMESTAMP.test(text);
+const hasUserTimestamp = (text = "") => REG_EXP.TELEGRAM_TIMESTAMP.test(text);
 
 // Listen for texts containing YouTube's url
 bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
@@ -123,7 +119,7 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   const texts: string[] = [];
 
   const message = deunionize(ctx.message)?.text;
-  if (settings.timestamp && noUserTimestamp(message)) {
+  if (settings.timestamp && hasUserTimestamp(message) === false) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
@@ -183,18 +179,14 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
 
   const replyMessage = deunionize(message.reply_to_message);
   if (!replyMessage || !replyMessage.text) return;
-  // console.log(replyMessage);
   const entities = replyMessage.entities;
   if (!entities) return;
 
   const urlEntity = entities.find((entity) => entity.type === "url");
   if (!urlEntity) return;
 
-  console.log(urlEntity);
   const url = replyMessage.text.slice(urlEntity?.offset, urlEntity?.length);
-  console.log(url);
 
-  // TODO: fix copypaste code from url listener
   const parsedUrl = parseUrl(url);
 
   const texts: string[] = [];
