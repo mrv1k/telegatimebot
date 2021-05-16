@@ -132,8 +132,8 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   if (settings.duration) {
     texts.push(await getDurationText(parsedUrl));
   }
-  const text = texts.join("\n");
 
+  const text = texts.join("\n");
   const options: ExtraReplyMessage = {
     reply_to_message_id: ctx.message?.message_id,
     disable_notification: true,
@@ -174,6 +174,43 @@ bot.command(["d", "duration"], async (ctx) => {
   return ctx.reply(durationText, {
     reply_to_message_id: botMessage.message_id,
   });
+});
+
+// Defensive programming FTW!
+bot.mention(process.env.BOT_USERNAME, async (ctx) => {
+  if (!ctx.message) return;
+  const message = deunionize(ctx.message);
+
+  const replyMessage = deunionize(message.reply_to_message);
+  if (!replyMessage || !replyMessage.text) return;
+  // console.log(replyMessage);
+  const entities = replyMessage.entities;
+  if (!entities) return;
+
+  const urlEntity = entities.find((entity) => entity.type === "url");
+  if (!urlEntity) return;
+
+  console.log(urlEntity);
+  const url = replyMessage.text.slice(urlEntity?.offset, urlEntity?.length);
+  console.log(url);
+
+  // TODO: fix copypaste code from url listener
+  const parsedUrl = parseUrl(url);
+
+  const texts: string[] = [];
+  // Explicit command call, don't check settings or user provided timestamp
+  const timestamp = getUrlTimestamp(parsedUrl);
+  if (timestamp) {
+    texts.push(getTimestampText(timestamp));
+  }
+  texts.push(await getDurationText(parsedUrl));
+
+  const text = texts.join("\n");
+  const options: ExtraReplyMessage = {
+    reply_to_message_id: replyMessage.message_id,
+    disable_notification: true,
+  };
+  ctx.reply(text, options);
 });
 
 // TODO: Display user friend error messages
