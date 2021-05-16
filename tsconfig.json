@@ -16,6 +16,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": false,
+    "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist"
   },
