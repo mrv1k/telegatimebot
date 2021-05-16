@@ -34,8 +34,8 @@ export function getTimestampText(timestamp: number): string {
 
 export async function getDurationText(parsedUrl: VideoInfo): Promise<string> {
   const duration = await fetchDuration(parsedUrl.id);
-  // use underscore to display as italic with markdown renderer to break rendering as clickable timestamp
-  return `Duration: _${formatTime(duration)}_`;
+  // Use \u200c (ZERO WIDTH NON-JOINER) to prevent Telegram from making it a timestamp
+  return `Duration: \u200c${formatTime(duration)}`;
 }
 
 export function findFirstArg(text: string): string | false {

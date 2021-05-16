@@ -94,7 +94,7 @@ bot.command(["t", "timestamp"], async (ctx) => {
     const parsedUrl = parseUrl(replyArg.text);
     const timestamp = getUrlTimestampOrThrow(parsedUrl);
     const timestampText = getTimestampText(timestamp);
-    return ctx.replyWithMarkdownV2(timestampText, {
+    return ctx.reply(timestampText, {
       reply_to_message_id: replyArg.message_id,
     });
   }
@@ -138,7 +138,7 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
     reply_to_message_id: ctx.message?.message_id,
     disable_notification: true,
   };
-  ctx.replyWithMarkdownV2(text, options);
+  ctx.reply(text, options);
 });
 
 bot.command(["d", "duration"], async (ctx) => {
@@ -147,7 +147,7 @@ bot.command(["d", "duration"], async (ctx) => {
   if (textArg) {
     const parsedUrl = parseUrl(textArg);
     const duration = await getDurationText(parsedUrl);
-    return ctx.replyWithMarkdownV2(duration, {
+    return ctx.reply(duration, {
       reply_to_message_id: ctx.message.message_id,
     });
   }
@@ -156,7 +156,7 @@ bot.command(["d", "duration"], async (ctx) => {
   if (replyArg && replyArg.text) {
     const parsedUrl = parseUrl(replyArg.text);
     const duration = await getDurationText(parsedUrl);
-    return ctx.replyWithMarkdownV2(duration, {
+    return ctx.reply(duration, {
       reply_to_message_id: replyArg.message_id,
     });
   }
@@ -171,7 +171,7 @@ bot.command(["d", "duration"], async (ctx) => {
 
   const stubbedParseUrl = { id: "oHg5SJYRHA0" };
   const durationText = await getDurationText(stubbedParseUrl);
-  return ctx.replyWithMarkdownV2(durationText, {
+  return ctx.reply(durationText, {
     reply_to_message_id: botMessage.message_id,
   });
 });
