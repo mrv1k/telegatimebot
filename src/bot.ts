@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { deunionize, Markup, Telegraf } from "telegraf";
+import { deunionize, Telegraf } from "telegraf";
 
 import {
   templateReply,
@@ -12,55 +12,16 @@ import {
   parseUrl,
 } from "./core";
 import errorHandler from "./error-handler";
+import settings from "./settings";
 import { HELP_MESSAGE, START_MESSAGE } from "./text";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.catch(errorHandler);
 
+bot.use(settings);
+
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
-
-// TODO: refactor to work for multiple chats
-const settings = {
-  duration: true,
-  timestamp: true,
-};
-
-const word = (setting: boolean) => (setting ? "Disable" : "Enable");
-
-bot.settings((ctx) => {
-  ctx.replyWithHTML("Settings", {
-    ...Markup.inlineKeyboard([
-      [Markup.button.callback("Disable all", "disable_all")],
-      [
-        Markup.button.callback(
-          `${word(settings.duration)} duration`,
-          "toggle_duration"
-        ),
-        Markup.button.callback(
-          `${word(settings.timestamp)} timestamp`,
-          "toggle_timestamp"
-        ),
-      ],
-    ]),
-  });
-});
-bot.action("disable_all", (ctx) => {
-  console.log("disable_all");
-  settings.duration = false;
-  settings.timestamp = false;
-  ctx.answerCbQuery();
-});
-bot.action("toggle_duration", (ctx) => {
-  settings.duration = !settings.duration;
-  console.log("toggle_duration", ctx);
-  ctx.answerCbQuery();
-});
-bot.action("toggle_timestamp", (ctx) => {
-  settings.timestamp = !settings.timestamp;
-  console.log("toggle_timestamp", ctx);
-  ctx.answerCbQuery();
-});
 
 // TODO: special hi for jembo's bot
 bot.command("hi", (ctx) => {
@@ -142,7 +103,7 @@ const hasUserTimestamp = (text = "") => REG_EXP.TELEGRAM_TIMESTAMP.test(text);
 
 // Listen for texts containing YouTube's url
 bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
-  if (!settings.timestamp && !settings.duration) return;
+  // if (!settings.timestamp && !settings.duration) return;
   if (!ctx.message) return;
   const message = deunionize(ctx.message);
 
@@ -150,15 +111,15 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   const parsedUrl = parseUrl(input);
   const texts: string[] = [];
 
-  if (settings.timestamp && hasUserTimestamp(message.text) === false) {
-    const timestamp = getUrlTimestamp(parsedUrl);
-    if (timestamp) {
-      texts.push(getTimestampText(timestamp));
-    }
+  // if (settings.timestamp && hasUserTimestamp(message.text) === false) {
+  const timestamp = getUrlTimestamp(parsedUrl);
+  if (timestamp) {
+    texts.push(getTimestampText(timestamp));
   }
-  if (settings.duration) {
-    texts.push(await getDurationText(parsedUrl));
-  }
+  // }
+  // if (settings.duration) {
+  texts.push(await getDurationText(parsedUrl));
+  // }
 
   const text = texts.join("\n");
   return templateReply(ctx, text, ctx.message.message_id);
@@ -178,7 +139,7 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
   const firstUrl = entities.find((entity) => entity.type === "url");
   if (!firstUrl) return;
 
-  const url = replyMessage.text.slice(firstUrl?.offset, firstUrl?.length);
+  const url = replyMessage.text.slice(firstUrl.offset, firstUrl.length);
   const parsedUrl = parseUrl(url);
   const texts: string[] = [];
 
@@ -200,3 +161,4 @@ console.log("I am ALIVE!");
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
+process.title = process.env.BOT_USERNAME;
