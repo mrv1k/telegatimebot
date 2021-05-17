@@ -4,7 +4,7 @@ import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
 import type Context from "telegraf/typings/context";
 import type { Message } from "telegraf/typings/core/types/typegram";
 
-import fetchDuration from "./fetch-duration";
+import { fetchDuration } from "./youtube-api";
 import { formatTime, secondsToTime } from "./time";
 
 export function parseUrl(text: string): VideoInfo {

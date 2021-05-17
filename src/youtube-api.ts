@@ -8,7 +8,7 @@ const client = youtube({
   auth: process.env.YOUTUBE_API_KEY,
 });
 
-export default async function fetchDuration(id: string): Promise<Duration> {
+export async function fetchDuration(id: string): Promise<Duration> {
   try {
     const res = await client.videos.list({
       part,
