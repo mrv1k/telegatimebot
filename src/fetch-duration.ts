@@ -1,7 +1,7 @@
 import { youtube } from "@googleapis/youtube";
-import { Duration, parse as parseDuration } from "iso8601-duration";
+import { Duration, parse as parseISO8601 } from "iso8601-duration";
 
-const part = ["contentDetails"];
+const part = ["contentDetails", "liveStreamingDetails"];
 
 const client = youtube({
   version: "v3",
@@ -20,17 +20,30 @@ export default async function fetchDuration(id: string): Promise<Duration> {
     } = res;
 
     if (items === undefined || items.length === 0) {
-      throw Error("Data items are missing");
+      throw new YouTubeAPIError("Video is private or doesn't exist");
     }
 
-    const firstItem = items[0];
-    const duration = firstItem?.contentDetails?.duration;
-    if (duration) return parseDuration(duration);
+    const item = items[0];
 
-    throw Error("Duration parse failed");
+    if (item.liveStreamingDetails) {
+      throw new YouTubeAPIError("Livestream Duration: ¯\\_(ツ)_/¯");
+    }
+
+    const rawDuration = item?.contentDetails?.duration;
+    if (rawDuration) return parseISO8601(rawDuration);
+
+    throw new YouTubeAPIError("Couldn't get duration from YouTube");
   } catch (error) {
-    // TODO: wrap an error
-    console.error(error);
-    throw error;
+    // rethrow as is
+    if (error instanceof YouTubeAPIError) throw error;
+    throw new YouTubeAPIError("YouTube API failed", error.stack);
+  }
+}
+
+export class YouTubeAPIError extends Error {
+  constructor(message: string, stack?: string) {
+    super(message);
+    this.name = "YouTubeAPIError";
+    if (stack) this.stack = stack;
   }
 }
