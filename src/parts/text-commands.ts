@@ -25,24 +25,24 @@ Just send a message and I'll fetch the info\\. \
 Can be disabled in /settings
 ` + HELP_MESSAGE;
 
-const bot = new Composer();
+const textCommands = new Composer();
 
 // Every chat with bot starts from /start
-bot.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
-bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
+textCommands.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
+textCommands.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
 
-bot.command("hi", async (ctx) => {
+textCommands.command("hi", async (ctx) => {
   if (ctx.message.chat.type === "group") {
     ctx.reply("Hi meatbags");
   }
   ctx.reply("Hello sunshine");
 });
 
-bot.command("bye", (ctx) => {
+textCommands.command("bye", (ctx) => {
   ctx.reply("Self-destruct initiated");
   setTimeout(() => {
     ctx.leaveChat();
   }, 1000);
 });
 
-export default bot;
+export default textCommands;

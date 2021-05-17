@@ -9,10 +9,11 @@ import {
   getUrlTimestampOrThrow,
   parseUrl,
 } from "./core";
-import { templateReply, findFirstArg } from "./bot-parts/helpers";
-import errorHandler from "./bot-parts/error-handler";
-import settingsCommands from "./bot-parts/settings";
-import textCommands from "./bot-parts/text-commands";
+import { templateReply, findFirstArg } from "./parts/helpers";
+import errorHandler from "./parts/error-handler";
+import settingsCommands from "./parts/settings-commands";
+import textCommands from "./parts/text-commands";
+import { hasUserTimestamp, YOUTUBE_URL } from "./parts/regexp";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;
@@ -76,17 +77,8 @@ bot.command(durationCommands, async (ctx) => {
   templateReply(ctx, stubbedDuration, botMessage.message_id);
 });
 
-const REG_EXP = {
-  // Match youtube or youtu.be; tests - https://regexr.com/5sve6
-  YOUTUBE_URL: /youtu(\.)?be/,
-  // Match anything between 0:00 to 99:99:99; Tests - https://regexr.com/5t1ib
-  TELEGRAM_TIMESTAMP: /(\d{1,2}:\d{1,2}(?::\d{1,2})?)/,
-};
-
-const hasUserTimestamp = (text = "") => REG_EXP.TELEGRAM_TIMESTAMP.test(text);
-
 // Listen for texts containing YouTube's url
-bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
+bot.url(YOUTUBE_URL, async (ctx) => {
   // if (!settings.timestamp && !settings.duration) return;
   if (!ctx.message) return;
   const message = deunionize(ctx.message);
