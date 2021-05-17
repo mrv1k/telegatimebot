@@ -71,6 +71,11 @@ bot.command("bye", (ctx) => {
   }, 1000);
 });
 
+// Ideally, I'd like to pass reply function in, but the its type is not exposed so to safe myself some pain, pass in whole Context
+const defaultReply = (ctx: Context, text: string, replyId?: number) => {
+  ctx.reply(text, { reply_to_message_id: replyId, disable_notification: true });
+};
+
 // Every chat with bot starts from /start
 bot.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
 bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
@@ -102,30 +107,19 @@ bot.command(["t", "timestamp"], async (ctx) => {
   return ctx.reply(`${command} <url>?timestamp=666`);
 });
 
-const getDurationFromInput = async (text?: string) => {
-  if (!text) return;
-  return await getDurationText(parseUrl(text));
-};
-
-// Ideally, I'd like to pass reply function in, but the its type is not exposed so to safe myself some pain, pass in whole Context
-const defaultReply = (ctx: Context, text: string, replyId?: number) => {
-  ctx.reply(text, { reply_to_message_id: replyId, disable_notification: true });
-};
-
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
 
-  // TODO: fix findFirstArg to return undefined
-  const argDuration = await getDurationFromInput(textArg || undefined);
-  if (argDuration) {
-    return defaultReply(ctx, argDuration, ctx.message.message_id);
+  if (textArg) {
+    const duration = await getDurationText(parseUrl(textArg));
+    return defaultReply(ctx, duration, ctx.message.message_id);
   }
 
   const replyArg = deunionize(ctx.message.reply_to_message);
-  if (replyArg) {
-    const replyDuration = await getDurationFromInput(replyArg.text);
-    if (replyDuration) {
-      return defaultReply(ctx, replyDuration, replyArg.message_id);
+  if (replyArg && replyArg.text) {
+    const duration = await getDurationText(parseUrl(replyArg.text));
+    if (duration) {
+      return defaultReply(ctx, duration, replyArg.message_id);
     }
   }
 
