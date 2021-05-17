@@ -11,9 +11,12 @@ import {
   getUrlTimestampOrThrow,
   parseUrl,
 } from "./core";
+import errorHandler from "./error-handler";
 import { HELP_MESSAGE, START_MESSAGE } from "./text";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
+bot.catch(errorHandler);
 
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
@@ -184,13 +187,6 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
 
   const text = texts.join("\n");
   return templateReply(ctx, text, replyMessage.message_id);
-});
-
-// TODO: Display user friend error messages
-bot.catch((err, ctx) => {
-  // "¯\\_(ツ)_/¯ It's a live stream";
-  console.log("caught!", err);
-  ctx.reply("apologies, something broke");
 });
 
 bot.launch();
