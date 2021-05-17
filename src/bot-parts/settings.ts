@@ -1,4 +1,4 @@
-import { Markup, Telegraf } from "telegraf";
+import { Composer, Markup } from "telegraf";
 
 // TODO: refactor to work for multiple chats
 const tempSettings = {
@@ -6,7 +6,7 @@ const tempSettings = {
   timestamp: true,
 };
 
-const settingsBot = new Telegraf(process.env.BOT_TOKEN);
+const settingsBot = new Composer();
 
 const word = (setting: boolean) => (setting ? "Disable" : "Enable");
 

@@ -11,32 +11,17 @@ import {
 } from "./core";
 import { templateReply, findFirstArg } from "./bot-parts/helpers";
 import errorHandler from "./bot-parts/error-handler";
-import settings from "./bot-parts/settings";
-import { HELP_MESSAGE, START_MESSAGE } from "./bot-parts/text";
+import settingsCommands from "./bot-parts/settings";
+import textCommands from "./bot-parts/text-commands";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+process.title = process.env.BOT_USERNAME;
 
+// Middleware
 bot.catch(errorHandler);
-
-bot.use(settings);
-
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
-
-// TODO: special hi for jembo's bot
-bot.command("hi", (ctx) => {
-  ctx.reply("Hey meatbags");
-});
-
-bot.command("bye", (ctx) => {
-  ctx.reply("Self-destruct initiated");
-  setTimeout(() => {
-    ctx.leaveChat();
-  }, 1000);
-});
-
-// Every chat with bot starts from /start
-bot.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
-bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
+bot.use(settingsCommands);
+bot.use(textCommands);
 
 bot.command(["t", "timestamp"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
@@ -160,4 +145,3 @@ console.log("I am ALIVE!");
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
-process.title = process.env.BOT_USERNAME;
