@@ -15,6 +15,8 @@ import { HELP_MESSAGE, START_MESSAGE } from "./text";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
+
 // TODO: refactor to work for multiple chats
 const settings = {
   duration: true,
@@ -22,6 +24,7 @@ const settings = {
 };
 
 const word = (setting: boolean) => (setting ? "Disable" : "Enable");
+
 bot.settings((ctx) => {
   ctx.replyWithHTML("Settings", {
     ...Markup.inlineKeyboard([
@@ -72,8 +75,6 @@ bot.command("bye", (ctx) => {
 bot.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
 bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
 
-if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
-
 bot.command(["t", "timestamp"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
   if (textArg) {
@@ -82,10 +83,10 @@ bot.command(["t", "timestamp"], async (ctx) => {
     const timestampText = getTimestampText(timestamp);
     return ctx.reply(timestampText, {
       reply_to_message_id: ctx.message.message_id,
+      disable_notification: true,
     });
   }
 
-  // TODO: almost identical to duration reply
   const replyArg = deunionize(ctx.message.reply_to_message);
   if (replyArg && replyArg.text) {
     const parsedUrl = parseUrl(replyArg.text);
@@ -93,11 +94,50 @@ bot.command(["t", "timestamp"], async (ctx) => {
     const timestampText = getTimestampText(timestamp);
     return ctx.reply(timestampText, {
       reply_to_message_id: replyArg.message_id,
+      disable_notification: true,
     });
   }
 
   const command = ctx.message.text;
   return ctx.reply(`${command} <url>?timestamp=666`);
+});
+
+bot.command(["d", "duration"], async (ctx) => {
+  const textArg = findFirstArg(ctx.message.text);
+  if (textArg) {
+    const parsedUrl = parseUrl(textArg);
+    const duration = await getDurationText(parsedUrl);
+    return ctx.reply(duration, {
+      reply_to_message_id: ctx.message.message_id,
+      disable_notification: true,
+    });
+  }
+
+  const replyArg = deunionize(ctx.message.reply_to_message);
+  if (replyArg && replyArg.text) {
+    const parsedUrl = parseUrl(replyArg.text);
+    const duration = await getDurationText(parsedUrl);
+    return ctx.reply(duration, {
+      reply_to_message_id: replyArg.message_id,
+      disable_notification: true,
+    });
+  }
+
+  // else show an example
+  await ctx.reply("Gets YouTube video duration.");
+  const command = ctx.message.text;
+  const rickUrl = "https://youtu.be/oHg5SJYRHA0";
+  const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
+    disable_web_page_preview: true,
+    disable_notification: true,
+  });
+
+  const stubbedParseUrl = { id: "oHg5SJYRHA0" };
+  const durationText = await getDurationText(stubbedParseUrl);
+  return ctx.reply(durationText, {
+    reply_to_message_id: botMessage.message_id,
+    disable_notification: true,
+  });
 });
 
 const REG_EXP = {
@@ -112,14 +152,14 @@ const hasUserTimestamp = (text = "") => REG_EXP.TELEGRAM_TIMESTAMP.test(text);
 // Listen for texts containing YouTube's url
 bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   if (!settings.timestamp && !settings.duration) return;
+  if (!ctx.message) return;
+  const message = deunionize(ctx.message);
 
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
-
   const texts: string[] = [];
 
-  const message = deunionize(ctx.message)?.text;
-  if (settings.timestamp && hasUserTimestamp(message) === false) {
+  if (settings.timestamp && hasUserTimestamp(message.text) === false) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
@@ -131,45 +171,10 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
 
   const text = texts.join("\n");
   const options: ExtraReplyMessage = {
-    reply_to_message_id: ctx.message?.message_id,
+    reply_to_message_id: ctx.message.message_id,
     disable_notification: true,
   };
   ctx.reply(text, options);
-});
-
-bot.command(["d", "duration"], async (ctx) => {
-  const textArg = findFirstArg(ctx.message.text);
-
-  if (textArg) {
-    const parsedUrl = parseUrl(textArg);
-    const duration = await getDurationText(parsedUrl);
-    return ctx.reply(duration, {
-      reply_to_message_id: ctx.message.message_id,
-    });
-  }
-
-  const replyArg = deunionize(ctx.message.reply_to_message);
-  if (replyArg && replyArg.text) {
-    const parsedUrl = parseUrl(replyArg.text);
-    const duration = await getDurationText(parsedUrl);
-    return ctx.reply(duration, {
-      reply_to_message_id: replyArg.message_id,
-    });
-  }
-
-  // else show an example
-  await ctx.reply("Gets YouTube video duration.");
-  const command = ctx.message.text;
-  const rickUrl = "https://youtu.be/oHg5SJYRHA0";
-  const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
-    disable_web_page_preview: true,
-  });
-
-  const stubbedParseUrl = { id: "oHg5SJYRHA0" };
-  const durationText = await getDurationText(stubbedParseUrl);
-  return ctx.reply(durationText, {
-    reply_to_message_id: botMessage.message_id,
-  });
 });
 
 // Defensive programming FTW!
@@ -179,6 +184,7 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
 
   const replyMessage = deunionize(message.reply_to_message);
   if (!replyMessage || !replyMessage.text) return;
+
   const entities = replyMessage.entities;
   if (!entities) return;
 
@@ -186,15 +192,15 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
   if (!urlEntity) return;
 
   const url = replyMessage.text.slice(urlEntity?.offset, urlEntity?.length);
-
   const parsedUrl = parseUrl(url);
-
   const texts: string[] = [];
+
   // Explicit command call, don't check settings or user provided timestamp
   const timestamp = getUrlTimestamp(parsedUrl);
   if (timestamp) {
     texts.push(getTimestampText(timestamp));
   }
+  // Always include duration
   texts.push(await getDurationText(parsedUrl));
 
   const text = texts.join("\n");
