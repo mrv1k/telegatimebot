@@ -1,9 +1,9 @@
 import "dotenv/config";
 
-import { Context, deunionize, Markup, Telegraf } from "telegraf";
-import type { ExtraReplyMessage } from "telegraf/typings/telegram-types";
+import { deunionize, Markup, Telegraf } from "telegraf";
 
 import {
+  templateReply,
   findFirstArg,
   getDurationText,
   getTimestampText,
@@ -71,11 +71,6 @@ bot.command("bye", (ctx) => {
   }, 1000);
 });
 
-// Ideally, I'd like to pass reply function in, but the its type is not exposed so to safe myself some pain, pass in whole Context
-const defaultReply = (ctx: Context, text: string, replyId?: number) => {
-  ctx.reply(text, { reply_to_message_id: replyId, disable_notification: true });
-};
-
 // Every chat with bot starts from /start
 bot.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
 bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
@@ -83,43 +78,35 @@ bot.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
 bot.command(["t", "timestamp"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
   if (textArg) {
-    const parsedUrl = parseUrl(textArg);
-    const timestamp = getUrlTimestampOrThrow(parsedUrl);
+    const timestamp = getUrlTimestampOrThrow(parseUrl(textArg));
     const timestampText = getTimestampText(timestamp);
-    return ctx.reply(timestampText, {
-      reply_to_message_id: ctx.message.message_id,
-      disable_notification: true,
-    });
+    return templateReply(ctx, timestampText, ctx.message.message_id);
   }
 
   const replyArg = deunionize(ctx.message.reply_to_message);
   if (replyArg && replyArg.text) {
-    const parsedUrl = parseUrl(replyArg.text);
-    const timestamp = getUrlTimestampOrThrow(parsedUrl);
+    const timestamp = getUrlTimestampOrThrow(parseUrl(replyArg.text));
     const timestampText = getTimestampText(timestamp);
-    return ctx.reply(timestampText, {
-      reply_to_message_id: replyArg.message_id,
-      disable_notification: true,
-    });
+    return templateReply(ctx, timestampText, replyArg.message_id);
   }
 
+  // else show an example
   const command = ctx.message.text;
-  return ctx.reply(`${command} <url>?timestamp=666`);
+  return ctx.reply(`${command} link?timestamp=666`);
 });
 
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
-
   if (textArg) {
     const duration = await getDurationText(parseUrl(textArg));
-    return defaultReply(ctx, duration, ctx.message.message_id);
+    return templateReply(ctx, duration, ctx.message.message_id);
   }
 
   const replyArg = deunionize(ctx.message.reply_to_message);
   if (replyArg && replyArg.text) {
     const duration = await getDurationText(parseUrl(replyArg.text));
     if (duration) {
-      return defaultReply(ctx, duration, replyArg.message_id);
+      return templateReply(ctx, duration, replyArg.message_id);
     }
   }
 
@@ -131,10 +118,9 @@ bot.command(["d", "duration"], async (ctx) => {
     disable_web_page_preview: true,
     disable_notification: true,
   });
-
-  const stubbedParseUrl = { id: "oHg5SJYRHA0" };
-  const exampleDuration = await getDurationText(stubbedParseUrl);
-  defaultReply(ctx, exampleDuration, botMessage.message_id);
+  // stub API call for the example, for explanation on format go to #getDurationText
+  const stubbedDuration = `Duration: \u200c3:33`;
+  templateReply(ctx, stubbedDuration, botMessage.message_id);
 });
 
 const REG_EXP = {
@@ -167,11 +153,7 @@ bot.url(REG_EXP.YOUTUBE_URL, async (ctx) => {
   }
 
   const text = texts.join("\n");
-  const options: ExtraReplyMessage = {
-    reply_to_message_id: ctx.message.message_id,
-    disable_notification: true,
-  };
-  ctx.reply(text, options);
+  return templateReply(ctx, text, ctx.message.message_id);
 });
 
 // Defensive programming FTW!
@@ -185,10 +167,10 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
   const entities = replyMessage.entities;
   if (!entities) return;
 
-  const urlEntity = entities.find((entity) => entity.type === "url");
-  if (!urlEntity) return;
+  const firstUrl = entities.find((entity) => entity.type === "url");
+  if (!firstUrl) return;
 
-  const url = replyMessage.text.slice(urlEntity?.offset, urlEntity?.length);
+  const url = replyMessage.text.slice(firstUrl?.offset, firstUrl?.length);
   const parsedUrl = parseUrl(url);
   const texts: string[] = [];
 
@@ -201,11 +183,7 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
   texts.push(await getDurationText(parsedUrl));
 
   const text = texts.join("\n");
-  const options: ExtraReplyMessage = {
-    reply_to_message_id: replyMessage.message_id,
-    disable_notification: true,
-  };
-  ctx.reply(text, options);
+  return templateReply(ctx, text, replyMessage.message_id);
 });
 
 // TODO: Display user friend error messages
