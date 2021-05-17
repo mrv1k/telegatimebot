@@ -1,5 +1,5 @@
 import { Context } from "telegraf";
-import { YouTubeAPIError } from "./youtube-api";
+import { YouTubeAPIError } from "../core/youtube-api";
 
 // TODO: Display user friend error messages
 export default async function errorHandler(

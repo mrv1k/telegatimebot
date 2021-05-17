@@ -3,17 +3,16 @@ import "dotenv/config";
 import { deunionize, Telegraf } from "telegraf";
 
 import {
-  templateReply,
-  findFirstArg,
   getDurationText,
   getTimestampText,
   getUrlTimestamp,
   getUrlTimestampOrThrow,
   parseUrl,
 } from "./core";
-import errorHandler from "./error-handler";
-import settings from "./settings";
-import { HELP_MESSAGE, START_MESSAGE } from "./text";
+import { templateReply, findFirstArg } from "./bot-parts/helpers";
+import errorHandler from "./bot-parts/error-handler";
+import settings from "./bot-parts/settings";
+import { HELP_MESSAGE, START_MESSAGE } from "./bot-parts/text";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
