@@ -98,23 +98,28 @@ bot.command(["t", "timestamp"], async (ctx) => {
   return ctx.reply(`${command} link?timestamp=666`);
 });
 
-bot.command(["d", "duration"], async (ctx) => {
+const durationCommands = ["d", "duration"];
+bot.command(durationCommands, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
-  if (textArg) {
-    const duration = await getDurationText(parseUrl(textArg));
-    return templateReply(ctx, duration, ctx.message.message_id);
-  }
+  if (!textArg) return next();
 
+  const duration = await getDurationText(parseUrl(textArg));
+  templateReply(ctx, duration, ctx.message.message_id);
+});
+
+bot.command(durationCommands, async (ctx, next) => {
   const replyArg = deunionize(ctx.message.reply_to_message);
-  if (replyArg && replyArg.text) {
-    const duration = await getDurationText(parseUrl(replyArg.text));
-    if (duration) {
-      return templateReply(ctx, duration, replyArg.message_id);
-    }
-  }
+  if (!replyArg || !replyArg.text) return next();
 
+  const duration = await getDurationText(parseUrl(replyArg.text));
+  if (duration) {
+    templateReply(ctx, duration, replyArg.message_id);
+  }
+});
+
+bot.command(durationCommands, async (ctx) => {
   // else show an example
-  await ctx.reply("Gets YouTube video duration.");
+  await ctx.reply("Gets YouTube video duration. For example:");
   const command = ctx.message.text;
   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
   const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
