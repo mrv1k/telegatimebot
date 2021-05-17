@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { deunionize, Markup, Telegraf } from "telegraf";
+import { Context, deunionize, Markup, Telegraf } from "telegraf";
 import type { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
 import {
@@ -102,25 +102,31 @@ bot.command(["t", "timestamp"], async (ctx) => {
   return ctx.reply(`${command} <url>?timestamp=666`);
 });
 
+const getDurationFromInput = async (text?: string) => {
+  if (!text) return;
+  return await getDurationText(parseUrl(text));
+};
+
+// Ideally, I'd like to pass reply function in, but the its type is not exposed so to safe myself some pain, pass in whole Context
+const defaultReply = (ctx: Context, text: string, replyId?: number) => {
+  ctx.reply(text, { reply_to_message_id: replyId, disable_notification: true });
+};
+
 bot.command(["d", "duration"], async (ctx) => {
   const textArg = findFirstArg(ctx.message.text);
-  if (textArg) {
-    const parsedUrl = parseUrl(textArg);
-    const duration = await getDurationText(parsedUrl);
-    return ctx.reply(duration, {
-      reply_to_message_id: ctx.message.message_id,
-      disable_notification: true,
-    });
+
+  // TODO: fix findFirstArg to return undefined
+  const argDuration = await getDurationFromInput(textArg || undefined);
+  if (argDuration) {
+    return defaultReply(ctx, argDuration, ctx.message.message_id);
   }
 
   const replyArg = deunionize(ctx.message.reply_to_message);
-  if (replyArg && replyArg.text) {
-    const parsedUrl = parseUrl(replyArg.text);
-    const duration = await getDurationText(parsedUrl);
-    return ctx.reply(duration, {
-      reply_to_message_id: replyArg.message_id,
-      disable_notification: true,
-    });
+  if (replyArg) {
+    const replyDuration = await getDurationFromInput(replyArg.text);
+    if (replyDuration) {
+      return defaultReply(ctx, replyDuration, replyArg.message_id);
+    }
   }
 
   // else show an example
@@ -133,11 +139,8 @@ bot.command(["d", "duration"], async (ctx) => {
   });
 
   const stubbedParseUrl = { id: "oHg5SJYRHA0" };
-  const durationText = await getDurationText(stubbedParseUrl);
-  return ctx.reply(durationText, {
-    reply_to_message_id: botMessage.message_id,
-    disable_notification: true,
-  });
+  const exampleDuration = await getDurationText(stubbedParseUrl);
+  defaultReply(ctx, exampleDuration, botMessage.message_id);
 });
 
 const REG_EXP = {
