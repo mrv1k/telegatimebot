@@ -12,7 +12,10 @@ import {
 import redis from "./core/redis";
 import { templateReply, findFirstArg } from "./parts/helpers";
 import errorHandler from "./parts/error-handler";
-import settingsCommands from "./parts/settings-commands";
+import settingsCommands, {
+  isDurationOn,
+  isTimestampOn,
+} from "./parts/settings-commands";
 import textCommands from "./parts/text-commands";
 import { hasUserTimestamp, YOUTUBE_URL } from "./parts/regexp";
 
@@ -80,23 +83,29 @@ bot.command(durationCommands, async (ctx) => {
 
 // Listen for texts containing YouTube's url
 bot.url(YOUTUBE_URL, async (ctx) => {
-  // if (!settings.timestamp && !settings.duration) return;
   if (!ctx.message) return;
+  const id = ctx.chat.id;
+
+  const timestampIsOn = await isTimestampOn(id);
+  const durationIsOn = await isDurationOn(id);
+
+  if (!timestampIsOn && !durationIsOn) return;
+
   const message = deunionize(ctx.message);
 
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
   const texts: string[] = [];
 
-  // if (settings.timestamp && hasUserTimestamp(message.text) === false) {
-  const timestamp = getUrlTimestamp(parsedUrl);
-  if (timestamp) {
-    texts.push(getTimestampText(timestamp));
+  if (timestampIsOn && hasUserTimestamp(message.text) === false) {
+    const timestamp = getUrlTimestamp(parsedUrl);
+    if (timestamp) {
+      texts.push(getTimestampText(timestamp));
+    }
   }
-  // }
-  // if (settings.duration) {
-  texts.push(await getDurationText(parsedUrl));
-  // }
+  if (durationIsOn) {
+    texts.push(await getDurationText(parsedUrl));
+  }
 
   const text = texts.join("\n");
   return templateReply(ctx, text, ctx.message.message_id);

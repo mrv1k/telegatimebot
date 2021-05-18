@@ -9,56 +9,58 @@ export enum Settings {
   duration = "duration",
 }
 
-const word = (setting: boolean) => (setting ? "Disable" : "Enable");
+settingsCommands.settings(async (ctx) => {
+  if (!ctx.chat) return;
+  const id = ctx.chat.id;
 
-settingsCommands.settings((ctx) => {
+  const durationIsOn = await isDurationOn(id);
+  const durationText = `${emoji(durationIsOn)} duration`;
+
+  const timestampIsOn = await isTimestampOn(id);
+  const timestampText = `${emoji(timestampIsOn)} timestamp`;
+
   ctx.replyWithHTML("Settings", {
     ...Markup.inlineKeyboard([
-      [Markup.button.callback("Disable all", "disable_all")],
       [
-        Markup.button.callback(`${"toggle"} duration`, "toggle_duration"),
-        // Markup.button.callback(
-        //   `${word(tempSettings.timestamp)} timestamp`,
-        //   "toggle_timestamp"
-        // ),
+        Markup.button.callback(durationText, "toggle_duration"),
+        Markup.button.callback(timestampText, "toggle_timestamp"),
       ],
     ]),
   });
 });
 
-settingsCommands.action("disable_all", (ctx) => {
-  console.log("disable_all");
-  // tempSettings.duration = false;
-  // tempSettings.timestamp = false;
-  ctx.answerCbQuery();
-});
-
 settingsCommands.action("toggle_duration", async (ctx) => {
   if (!ctx.chat) return;
-  console.log(ctx.chat);
-  console.log(ctx.chat.id);
-
   const key = redisKey(ctx.chat.id, Settings.duration);
-  console.log(key);
-
-  const exists = await redis.exists(key);
-  console.log(exists);
-
-  if (exists) {
-    await redis.del(key);
-  } else {
-    await redis.set(key, 1);
-  }
-
-  // console.log("toggle_duration", ctx);
+  toggle(key);
   ctx.answerCbQuery();
 });
 
 settingsCommands.action("toggle_timestamp", (ctx) => {
-  // tempSettings.timestamp = !tempSettings.timestamp;
-  console.log("toggle_timestamp", ctx);
+  if (!ctx.chat) return;
+  const key = redisKey(ctx.chat.id, Settings.timestamp);
+  toggle(key);
   ctx.answerCbQuery();
 });
 
 export default settingsCommands;
 export { redis };
+
+async function toggle(key: string) {
+  const exists = await redis.exists(key);
+  if (exists) return await redis.del(key);
+  // set to 1 as it takes less memory than empty string
+  return await redis.set(key, 1);
+}
+
+// if 0 - doesn't exist. Setting disabled.
+// else - 1 does exist. Setting enabled - exclude from url replies
+
+// Slightly counterintuitive but will help to save redis memory
+export const isTimestampOn = async (id: number): Promise<boolean> =>
+  (await redis.exists(redisKey(id, Settings.timestamp))) === 0;
+
+export const isDurationOn = async (id: number): Promise<boolean> =>
+  (await redis.exists(redisKey(id, Settings.duration))) === 0;
+
+const emoji = (setting: boolean) => (setting ? "❌" : "✅");
