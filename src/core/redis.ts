@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { Settings } from "../parts/settings-commands";
 
 // https://github.com/luin/ioredis#tls-options for redis labs
 export default new Redis({
@@ -8,3 +9,6 @@ export default new Redis({
 });
 
 // https://github.com/luin/ioredis#error-handling
+
+export const redisKey = (id: number, setting: Settings): string =>
+  `${id}:${setting}`;

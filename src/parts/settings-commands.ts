@@ -1,19 +1,13 @@
 import { Composer, Markup } from "telegraf";
-import redis from "../core/redis";
+import redis, { redisKey } from "../core/redis";
 
 // use chat.id as unique key - https://core.telegram.org/bots/api#chat
 const settingsCommands = new Composer();
 
-settingsCommands.hears(["Ah", "ha", "ha", "ha", "A"], async (ctx) => {
-  console.log(ctx.chat);
-  console.log(ctx.chat.id);
-
-  await redis.setex("temp", 20, "BRUH");
-  console.log("ah ha ha ha");
-});
-settingsCommands.hears(["stayin", "alive", "Alive", "B"], async (ctx) => {
-  console.log("stayin alive", await redis.get("foo"));
-});
+export enum Settings {
+  timestamp = "timestamp",
+  duration = "duration",
+}
 
 const word = (setting: boolean) => (setting ? "Disable" : "Enable");
 
@@ -22,10 +16,7 @@ settingsCommands.settings((ctx) => {
     ...Markup.inlineKeyboard([
       [Markup.button.callback("Disable all", "disable_all")],
       [
-        // Markup.button.callback(
-        //   `${word(tempSettings.duration)} duration`,
-        //   "toggle_duration"
-        // ),
+        Markup.button.callback(`${"toggle"} duration`, "toggle_duration"),
         // Markup.button.callback(
         //   `${word(tempSettings.timestamp)} timestamp`,
         //   "toggle_timestamp"
@@ -42,9 +33,24 @@ settingsCommands.action("disable_all", (ctx) => {
   ctx.answerCbQuery();
 });
 
-settingsCommands.action("toggle_duration", (ctx) => {
-  // tempSettings.duration = !tempSettings.duration;
-  console.log("toggle_duration", ctx);
+settingsCommands.action("toggle_duration", async (ctx) => {
+  if (!ctx.chat) return;
+  console.log(ctx.chat);
+  console.log(ctx.chat.id);
+
+  const key = redisKey(ctx.chat.id, Settings.duration);
+  console.log(key);
+
+  const exists = await redis.exists(key);
+  console.log(exists);
+
+  if (exists) {
+    await redis.del(key);
+  } else {
+    await redis.set(key, 1);
+  }
+
+  // console.log("toggle_duration", ctx);
   ctx.answerCbQuery();
 });
 
