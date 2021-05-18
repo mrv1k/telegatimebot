@@ -9,6 +9,7 @@ import {
   getUrlTimestampOrThrow,
   parseUrl,
 } from "./core";
+import redis from "./core/redis";
 import { templateReply, findFirstArg } from "./parts/helpers";
 import errorHandler from "./parts/error-handler";
 import settingsCommands from "./parts/settings-commands";
@@ -135,5 +136,12 @@ bot.launch();
 console.log("I am ALIVE!");
 
 // Enable graceful stop
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+process.once("SIGINT", () => {
+  redis.disconnect();
+  bot.stop("SIGINT");
+});
+
+process.once("SIGTERM", () => {
+  redis.disconnect();
+  bot.stop("SIGTERM");
+});
