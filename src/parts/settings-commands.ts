@@ -53,10 +53,13 @@ async function toggle(key: string) {
   return await redis.set(key, 1);
 }
 
-// if 0 - doesn't exist. Setting disabled.
-// else - 1 does exist. Setting enabled - exclude from url replies
+// redis.exists
+// 1 if the key exists.
+// 0 if the key does not exist.
+// Flip that with comparison. Slightly counterintuitive but helps to save redis memory
+// if 0 the setting doesn't exist. Setting is off, display information
+// else - 1 does exist. Setting is on, DON'T display information
 
-// Slightly counterintuitive but will help to save redis memory
 export const isTimestampOn = async (id: number): Promise<boolean> =>
   (await redis.exists(redisKey(id, Settings.timestamp))) === 0;
 
