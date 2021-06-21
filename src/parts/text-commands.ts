@@ -2,21 +2,21 @@ import { Composer } from "telegraf";
 
 // Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
 const HELP_MESSAGE = `
-You can control me by sending these *commands*:
-/duration \\<link\\> \\- display video duration
-/timestamp \\<link with timestamp\\> \\- create telegram timestamp
+I obey\\.\\.\\. to following *commands*:
+/duration \\<link\\> \\- get duration
+/timestamp \\<link?t\\=1\\> \\- convert timestamp
+/dt \\- get duration and convert timestamp
+\\<link\\> can also be a reply message
+
+*Other:*
 /settings \\- open settings
 /help \\- display help message
-
-*Shorthands:*
 /d \\- for /duration
 /t \\- for /timestamp
 
-_To avoid polluting commands only /duration and /timestamp are added to the list of commands_
-`;
-
+_Not all commands are added to_ '/' _suggestions_`;
 const START_MESSAGE =
-  `I help you by replying to YouTube's link with:
+  `I help by providing following info for a YouTube's link with:
 1\\. Video duration
 2\\. Telegram friendly timestamp
 
@@ -28,14 +28,18 @@ Can be disabled in /settings
 const textCommands = new Composer();
 
 // Every chat with bot starts from /start
-textCommands.start((ctx) => ctx.replyWithMarkdownV2(START_MESSAGE));
-textCommands.help((ctx) => ctx.replyWithMarkdownV2(HELP_MESSAGE));
+textCommands.start((ctx) => {
+  ctx.replyWithMarkdownV2(START_MESSAGE);
+});
+textCommands.help((ctx) => {
+  ctx.replyWithMarkdownV2(HELP_MESSAGE);
+});
 
 textCommands.command("hi", async (ctx) => {
   if (ctx.message.chat.type === "group") {
-    ctx.reply("Hi meatbags");
+    return ctx.reply("Hi everybody");
   }
-  ctx.reply("Hello sunshine");
+  ctx.reply("Hello");
 });
 
 textCommands.command("bye", (ctx) => {

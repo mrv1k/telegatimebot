@@ -49,6 +49,7 @@ bot.command(["t", "timestamp"], async (ctx) => {
 });
 
 const durationCommands = ["d", "duration"];
+
 bot.command(durationCommands, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
   if (!textArg) return next();
@@ -79,6 +80,10 @@ bot.command(durationCommands, async (ctx) => {
   // stub API call for the example, for explanation on format go to #getDurationText
   const stubbedDuration = `Duration: \u200c3:33`;
   templateReply(ctx, stubbedDuration, botMessage.message_id);
+});
+
+bot.command(["dt", "td"], async (ctx) => {
+  ctx.reply("WIP");
 });
 
 // Listen for texts containing YouTube's url

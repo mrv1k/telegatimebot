@@ -1,6 +1,6 @@
 # TelegaTimeBot
 
-Add this bot [@telegatimebot](https://t.me/telegatimebot)
+Add this bot <https://t.me/telegatimebot>
 
 ## Features
 
