@@ -9,6 +9,11 @@ enum Settings {
   duration = "duration",
 }
 
+enum Action {
+  toggleDuration = "toggleDuration",
+  toggleTimestamp = "toggleTimestamp",
+}
+
 const SETTINGS_MESSAGE = `<b>Settings:</b>
 By default, I auto-run
 /duration and /timestamp commands for messages with YouTube links.
@@ -24,7 +29,7 @@ settingsCommands.settings(async (ctx) => {
   });
 });
 
-settingsCommands.action("toggle_duration", async (ctx) => {
+settingsCommands.action(Action.toggleDuration, async (ctx) => {
   if (!ctx.chat) return;
 
   const isDurationEnabled = await toggleSetting(ctx.chat.id, Settings.duration);
@@ -42,7 +47,7 @@ settingsCommands.action("toggle_duration", async (ctx) => {
   ctx.answerCbQuery();
 });
 
-settingsCommands.action("toggle_timestamp", async (ctx) => {
+settingsCommands.action(Action.toggleTimestamp, async (ctx) => {
   if (!ctx.chat) return;
 
   const isTimestampEnabled = await toggleSetting(
@@ -74,19 +79,18 @@ const makeInlineKeyboard = async (initial: InlineKeyboardParams) => {
   const isDurationEnabled =
     initial.isDurationEnabled ??
     (await getSettingState(initial.chatId, Settings.duration));
+  const durationText = `${onOffEmoji(isDurationEnabled)} duration`;
 
   const isTimestampEnabled =
     initial.isTimestampEnabled ??
     (await getSettingState(initial.chatId, Settings.timestamp));
-
-  const durationText = `${onOffEmoji(isDurationEnabled)} duration`;
   const timestampText = `${onOffEmoji(isTimestampEnabled)} timestamp`;
 
   // array of arrays, because multiple row keyboards
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback(durationText, "toggle_duration"),
-      Markup.button.callback(timestampText, "toggle_timestamp"),
+      Markup.button.callback(durationText, Action.toggleDuration),
+      Markup.button.callback(timestampText, Action.toggleTimestamp),
     ],
   ]);
 };
