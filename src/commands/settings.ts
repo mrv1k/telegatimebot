@@ -59,6 +59,8 @@ settingsCommands.action("toggle_timestamp", async (ctx) => {
     parse_mode: "HTML",
     reply_markup: inlineKeyboard.reply_markup,
   });
+
+  ctx.answerCbQuery();
 });
 
 type InlineKeyboardParams = {
