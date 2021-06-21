@@ -6,15 +6,16 @@ import {
   getDurationText,
   getTimestampText,
   getUrlTimestamp,
-  getUrlTimestampOrThrow,
   parseUrl,
 } from "./core";
 import redis, { getSettingState } from "./core/redis";
-import { templateReply, findFirstArg } from "./parts/helpers";
+import { templateReply } from "./parts/helpers";
 import errorHandler from "./parts/error-handler";
 import settingsCommands, { Settings } from "./parts/settings-commands";
 import textCommands from "./parts/text-commands";
 import { hasNoUserTimestamp, YOUTUBE_URL } from "./parts/regexp";
+import timestampCommands from "./commands/timestamp";
+import durationCommands from "./commands/duration";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;
@@ -24,60 +25,8 @@ bot.catch(errorHandler);
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 bot.use(settingsCommands);
 bot.use(textCommands);
-
-bot.command(["t", "timestamp"], async (ctx) => {
-  const textArg = findFirstArg(ctx.message.text);
-  if (textArg) {
-    const timestamp = getUrlTimestampOrThrow(parseUrl(textArg));
-    const timestampText = getTimestampText(timestamp);
-    return templateReply(ctx, timestampText, ctx.message.message_id);
-  }
-
-  const replyArg = deunionize(ctx.message.reply_to_message);
-  if (replyArg && replyArg.text) {
-    const timestamp = getUrlTimestampOrThrow(parseUrl(replyArg.text));
-    const timestampText = getTimestampText(timestamp);
-    return templateReply(ctx, timestampText, replyArg.message_id);
-  }
-
-  // else show an example
-  const command = ctx.message.text;
-  return ctx.reply(`${command} link?timestamp=666`);
-});
-
-const durationCommands = ["d", "duration"];
-
-bot.command(durationCommands, async (ctx, next) => {
-  const textArg = findFirstArg(ctx.message.text);
-  if (!textArg) return next();
-
-  const duration = await getDurationText(parseUrl(textArg));
-  templateReply(ctx, duration, ctx.message.message_id);
-});
-
-bot.command(durationCommands, async (ctx, next) => {
-  const replyArg = deunionize(ctx.message.reply_to_message);
-  if (!replyArg || !replyArg.text) return next();
-
-  const duration = await getDurationText(parseUrl(replyArg.text));
-  if (duration) {
-    templateReply(ctx, duration, replyArg.message_id);
-  }
-});
-
-bot.command(durationCommands, async (ctx) => {
-  // else show an example
-  await ctx.reply("Gets YouTube video duration. For example:");
-  const command = ctx.message.text;
-  const rickUrl = "https://youtu.be/oHg5SJYRHA0";
-  const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
-    disable_web_page_preview: true,
-    disable_notification: true,
-  });
-  // stub API call for the example, for explanation on format go to #getDurationText
-  const stubbedDuration = `Duration: \u200c3:33`;
-  templateReply(ctx, stubbedDuration, botMessage.message_id);
-});
+bot.use(timestampCommands);
+bot.use(durationCommands);
 
 bot.command(["dt", "td"], async (ctx) => {
   ctx.reply("WIP");
