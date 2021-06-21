@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { Settings } from "../parts/settings-commands";
+import { Settings } from "../commands/settings";
 
 // https://github.com/luin/ioredis#error-handling
 // https://github.com/luin/ioredis#tls-options for redis labs
