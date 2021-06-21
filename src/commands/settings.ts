@@ -14,17 +14,21 @@ enum Action {
   toggleTimestamp = "toggleTimestamp",
 }
 
-const SETTINGS_MESSAGE = `<b>Settings:</b>
-By default, I auto-run
-/duration and /timestamp commands for messages with YouTube links.
-Change it bellow`;
+`I solve YouTube in Telegram annoyances \
+by getting video duration and converting timestamp\\.
+
+By default, I passively look for YouTube links\\. \
+When I see one I fetch info\\. Can be disabled in /settings`;
+
+const SETTINGS_TEXT = `<b>Settings:</b>
+What should I run when I see YouTube link?`;
 
 settingsCommands.settings(async (ctx) => {
   if (!ctx.chat) return;
 
   const inlineKeyboard = await makeInlineKeyboard({ chatId: ctx.chat.id });
 
-  ctx.replyWithHTML(SETTINGS_MESSAGE, {
+  ctx.replyWithHTML(SETTINGS_TEXT, {
     reply_markup: inlineKeyboard.reply_markup,
   });
 });
@@ -39,7 +43,7 @@ settingsCommands.action(Action.toggleDuration, async (ctx) => {
     isDurationEnabled,
   });
 
-  await ctx.editMessageText(SETTINGS_MESSAGE, {
+  await ctx.editMessageText(SETTINGS_TEXT, {
     parse_mode: "HTML",
     reply_markup: inlineKeyboard.reply_markup,
   });
@@ -60,7 +64,7 @@ settingsCommands.action(Action.toggleTimestamp, async (ctx) => {
     isTimestampEnabled,
   });
 
-  await ctx.editMessageText(SETTINGS_MESSAGE, {
+  await ctx.editMessageText(SETTINGS_TEXT, {
     parse_mode: "HTML",
     reply_markup: inlineKeyboard.reply_markup,
   });

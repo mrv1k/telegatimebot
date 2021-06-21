@@ -1,38 +1,39 @@
 import { Composer } from "telegraf";
 
 // Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
-const HELP_MESSAGE = `
-I obey\\.\\.\\. to following *commands*:
+const HELP_TEXT = `
+*Commands*:
 /duration \\<link\\> \\- get duration
 /timestamp \\<link?t\\=1\\> \\- convert timestamp
-/dt \\- get duration and convert timestamp
-\\<link\\> can also be a reply message
+/dt \\- /duration & /timestamp combined
+/d \\- shorthand for /duration
+/t \\- shorthand for /timestamp
+hint: you can point me to link by replying to a message with command
 
-*Other:*
 /settings \\- open settings
 /help \\- display help message
-/d \\- for /duration
-/t \\- for /timestamp
 
 _Not all commands are added to_ '/' _suggestions_`;
-const START_MESSAGE =
-  `I help by providing following info for a YouTube's link with:
-1\\. Video duration
-2\\. Telegram friendly timestamp
 
-By default, I automatically listen to YouTube's links\\. \
-Just send a message and I'll fetch the info\\. \
-Can be disabled in /settings
-` + HELP_MESSAGE;
+const START_TEXT =
+  `I solve YouTube in Telegram annoyances \
+by getting video duration and converting timestamp\\.
+
+By default, I passively look for YouTube links\\. \
+When I see one I fetch the info\\. Can be disabled in /settings
+Code is /opensource
+To see this message again /start
+` + HELP_TEXT;
 
 const textCommands = new Composer();
 
 // Every chat with bot starts from /start
 textCommands.start((ctx) => {
-  ctx.replyWithMarkdownV2(START_MESSAGE);
+  ctx.replyWithMarkdownV2(START_TEXT);
 });
+
 textCommands.help((ctx) => {
-  ctx.replyWithMarkdownV2(HELP_MESSAGE);
+  ctx.replyWithMarkdownV2(HELP_TEXT);
 });
 
 textCommands.command("hi", async (ctx) => {
@@ -47,6 +48,10 @@ textCommands.command("bye", (ctx) => {
   setTimeout(() => {
     ctx.leaveChat();
   }, 1000);
+});
+
+textCommands.command("/opensource", (ctx) => {
+  ctx.reply("https://github.com/mrv1k/telegatimebot");
 });
 
 export default textCommands;
