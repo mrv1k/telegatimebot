@@ -20,38 +20,38 @@ const START_TEXT =
 by getting video duration and converting timestamp\\.
 
 By default, I passively look for YouTube links\\. \
-When I see one I fetch the info\\. Can be disabled in /settings
+When I see one I fetch info\\. Can be disabled in /settings
 Code is /opensource
 To see this message again /start
 ` + HELP_TEXT;
 
-const textCommands = new Composer();
+const simpleCommands = new Composer();
 
 // Every chat with bot starts from /start
-textCommands.start((ctx) => {
+simpleCommands.start((ctx) => {
   ctx.replyWithMarkdownV2(START_TEXT);
 });
 
-textCommands.help((ctx) => {
+simpleCommands.help((ctx) => {
   ctx.replyWithMarkdownV2(HELP_TEXT);
 });
 
-textCommands.command("hi", async (ctx) => {
+simpleCommands.command("hi", async (ctx) => {
   if (ctx.message.chat.type === "group") {
     return ctx.reply("Hi everybody");
   }
   ctx.reply("Hello");
 });
 
-textCommands.command("bye", (ctx) => {
+simpleCommands.command("bye", (ctx) => {
   ctx.reply("Self-destruct initiated");
   setTimeout(() => {
     ctx.leaveChat();
   }, 1000);
 });
 
-textCommands.command("/opensource", (ctx) => {
+simpleCommands.command("opensource", (ctx) => {
   ctx.reply("https://github.com/mrv1k/telegatimebot");
 });
 
-export default textCommands;
+export default simpleCommands;

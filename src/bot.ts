@@ -2,6 +2,7 @@ import "dotenv/config";
 import { deunionize, Telegraf } from "telegraf";
 import durationCommands from "./commands/duration";
 import settingsCommands, { Settings } from "./commands/settings";
+import simpleCommands from "./commands/simple";
 import timestampCommands from "./commands/timestamp";
 import {
   getDurationText,
@@ -13,7 +14,6 @@ import redis, { getSettingState } from "./core/redis";
 import errorHandler from "./parts/error-handler";
 import { templateReply } from "./parts/helpers";
 import { hasNoUserTimestamp, YOUTUBE_URL } from "./parts/regexp";
-import textCommands from "./parts/text-commands";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;
@@ -22,7 +22,7 @@ process.title = process.env.BOT_USERNAME;
 bot.catch(errorHandler);
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 bot.use(settingsCommands);
-bot.use(textCommands);
+bot.use(simpleCommands);
 bot.use(timestampCommands);
 bot.use(durationCommands);
 

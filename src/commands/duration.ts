@@ -3,12 +3,11 @@ import { Composer, deunionize } from "telegraf";
 import { getDurationText, parseUrl } from "../core";
 import { templateReply, findFirstArg } from "../parts/helpers";
 
-const TBD = ["d", "duration"];
-
+const COMMANDS = ["d", "duration"];
 const durationCommands = new Composer();
 
 // Check for url argument. eg: /duration <url>
-durationCommands.command(TBD, async (ctx, next) => {
+durationCommands.command(COMMANDS, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
   if (!textArg) return next();
 
@@ -17,7 +16,7 @@ durationCommands.command(TBD, async (ctx, next) => {
 });
 
 // Check for reply. eg: /duration <reply_message>
-durationCommands.command(TBD, async (ctx, next) => {
+durationCommands.command(COMMANDS, async (ctx, next) => {
   const replyArg = deunionize(ctx.message.reply_to_message);
   if (!replyArg || !replyArg.text) return next();
 
@@ -28,8 +27,8 @@ durationCommands.command(TBD, async (ctx, next) => {
 });
 
 // Fallback. Show an example
-durationCommands.command(TBD, async (ctx) => {
-  await ctx.reply("Gets YouTube video duration. For example:");
+durationCommands.command(COMMANDS, async (ctx) => {
+  await ctx.reply("Gets YouTube video duration. \nFor example:");
   const command = ctx.message.text;
   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
   const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
