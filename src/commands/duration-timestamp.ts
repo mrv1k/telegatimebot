@@ -11,14 +11,14 @@ import { templateReply } from "../parts/helpers";
 import { hasNoUserTimestamp, YOUTUBE_URL } from "../parts/regexp";
 
 // dt stand for duration timestamp
-const dtCommands = new Composer();
+const durationTimestampCommands = new Composer();
 
-dtCommands.command(["dt", "td"], async (ctx) => {
+durationTimestampCommands.command(["dt", "td"], async (ctx) => {
   ctx.reply("WIP");
 });
 
 // Listen for texts containing YouTube's url
-dtCommands.url(YOUTUBE_URL, async (ctx) => {
+durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
   if (!ctx.message) return;
   const id = ctx.chat.id;
 
@@ -49,7 +49,7 @@ dtCommands.url(YOUTUBE_URL, async (ctx) => {
 });
 
 // Defensive programming FTW!
-dtCommands.mention(process.env.BOT_USERNAME, async (ctx) => {
+durationTimestampCommands.mention(process.env.BOT_USERNAME, async (ctx) => {
   if (!ctx.message) return;
   const message = deunionize(ctx.message);
 
@@ -79,4 +79,4 @@ dtCommands.mention(process.env.BOT_USERNAME, async (ctx) => {
   return templateReply(ctx, text, replyMessage.message_id);
 });
 
-export default dtCommands;
+export default durationTimestampCommands;

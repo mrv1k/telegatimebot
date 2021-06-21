@@ -1,10 +1,6 @@
 import "dotenv/config";
 import { Telegraf } from "telegraf";
-import durationCommands from "./commands/duration";
-import durationTimestampCommands from "./commands/duration-timestamp";
-import settingsCommands from "./commands/settings";
-import simpleCommands from "./commands/simple";
-import timestampCommands from "./commands/timestamp";
+import commands from "./commands";
 import redis from "./core/redis";
 import errorHandler from "./parts/error-handler";
 
@@ -15,11 +11,7 @@ process.title = process.env.BOT_USERNAME;
 bot.catch(errorHandler);
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 
-bot.use(settingsCommands);
-bot.use(simpleCommands);
-bot.use(timestampCommands);
-bot.use(durationCommands);
-bot.use(durationTimestampCommands);
+bot.use(commands);
 
 bot.launch();
 console.log("I am ALIVE!");
