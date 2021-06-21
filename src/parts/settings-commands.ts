@@ -1,17 +1,18 @@
 import { Composer, Markup } from "telegraf";
-import redis, { redisKey } from "../core/redis";
+import { getSettingState, toggleSetting } from "../core/redis";
 
 // use chat.id as unique key - https://core.telegram.org/bots/api#chat
 const settingsCommands = new Composer();
 
-export enum Settings {
+enum Settings {
   timestamp = "timestamp",
   duration = "duration",
 }
 
-const SETTINGS_MESSAGE = `<b>Settings</b>
-By default, I auto-run /dt command for messages with YouTube links.
-Change it by clicking bellow`;
+const SETTINGS_MESSAGE = `<b>Settings:</b>
+By default, I auto-run
+/duration and /timestamp commands for messages with YouTube links.
+Change it bellow`;
 
 settingsCommands.settings(async (ctx) => {
   if (!ctx.chat) return;
@@ -25,8 +26,8 @@ settingsCommands.settings(async (ctx) => {
 
 settingsCommands.action("toggle_duration", async (ctx) => {
   if (!ctx.chat) return;
-  const durationKey = redisKey(ctx.chat.id, Settings.duration);
-  const isDurationEnabled = await toggle(durationKey);
+
+  const isDurationEnabled = await toggleSetting(ctx.chat.id, Settings.duration);
 
   const inlineKeyboard = await makeInlineKeyboard({
     chatId: ctx.chat.id,
@@ -43,8 +44,11 @@ settingsCommands.action("toggle_duration", async (ctx) => {
 
 settingsCommands.action("toggle_timestamp", async (ctx) => {
   if (!ctx.chat) return;
-  const timestampKey = redisKey(ctx.chat.id, Settings.timestamp);
-  const isTimestampEnabled = await toggle(timestampKey);
+
+  const isTimestampEnabled = await toggleSetting(
+    ctx.chat.id,
+    Settings.timestamp
+  );
 
   const inlineKeyboard = await makeInlineKeyboard({
     chatId: ctx.chat.id,
@@ -57,8 +61,6 @@ settingsCommands.action("toggle_timestamp", async (ctx) => {
   });
 });
 
-export default settingsCommands;
-
 type InlineKeyboardParams = {
   chatId: number;
   isDurationEnabled?: boolean;
@@ -68,9 +70,12 @@ type InlineKeyboardParams = {
 const makeInlineKeyboard = async (initial: InlineKeyboardParams) => {
   // if initial has enable status, use it. Fallback to fetching setting from redis
   const isDurationEnabled =
-    initial.isDurationEnabled ?? (await getDurationStatus(initial.chatId));
+    initial.isDurationEnabled ??
+    (await getSettingState(initial.chatId, Settings.duration));
+
   const isTimestampEnabled =
-    initial.isTimestampEnabled ?? (await getTimestampStatus(initial.chatId));
+    initial.isTimestampEnabled ??
+    (await getSettingState(initial.chatId, Settings.timestamp));
 
   const durationText = `${onOffEmoji(isDurationEnabled)} duration`;
   const timestampText = `${onOffEmoji(isTimestampEnabled)} timestamp`;
@@ -84,35 +89,7 @@ const makeInlineKeyboard = async (initial: InlineKeyboardParams) => {
   ]);
 };
 
-async function toggle(key: string) {
-  // 0 - enabled, 1 - disabled
-  const exists = await redis.exists(key);
-  let isEnabled;
-
-  // if it existed, it was disabled, enable it
-  if (exists) {
-    await redis.del(key);
-    isEnabled = true;
-  } else {
-    // set to 1 as it takes less memory than empty string
-    await redis.set(key, 1);
-    isEnabled = false;
-  }
-
-  return isEnabled;
-}
-
-// redis.exists
-// 1 if the key exists.
-// 0 if the key does not exist.
-// Flip that with comparison. Slightly counterintuitive but helps to save redis memory
-// if 0 the setting doesn't exist. Setting is off, display information
-// else - 1 does exist. Setting is on, DON'T display information
-
-export const getTimestampStatus = async (id: number): Promise<boolean> =>
-  (await redis.exists(redisKey(id, Settings.timestamp))) === 0;
-
-export const getDurationStatus = async (id: number): Promise<boolean> =>
-  (await redis.exists(redisKey(id, Settings.duration))) === 0;
-
 const onOffEmoji = (isOn: boolean) => (isOn ? "❌" : "✅");
+
+export default settingsCommands;
+export { Settings };
