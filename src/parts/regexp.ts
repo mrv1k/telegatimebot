@@ -5,4 +5,4 @@ export const YOUTUBE_URL = /youtu(\.)?be/;
 const TELEGRAM_TIMESTAMP = /(\d{1,2}:\d{1,2}(?::\d{1,2})?)/;
 
 export const hasUserTimestamp = (text = ""): boolean =>
-  TELEGRAM_TIMESTAMP.test(text);
+  TELEGRAM_TIMESTAMP.test(text) === false;

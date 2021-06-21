@@ -13,11 +13,14 @@ import redis from "./core/redis";
 import { templateReply, findFirstArg } from "./parts/helpers";
 import errorHandler from "./parts/error-handler";
 import settingsCommands, {
-  isDurationOn,
-  isTimestampOn,
+  getDurationStatus,
+  getTimestampStatus,
 } from "./parts/settings-commands";
 import textCommands from "./parts/text-commands";
-import { hasUserTimestamp, YOUTUBE_URL } from "./parts/regexp";
+import {
+  hasUserTimestamp as noUserTimestamp,
+  YOUTUBE_URL,
+} from "./parts/regexp";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;
@@ -91,10 +94,10 @@ bot.url(YOUTUBE_URL, async (ctx) => {
   if (!ctx.message) return;
   const id = ctx.chat.id;
 
-  const timestampIsOn = await isTimestampOn(id);
-  const durationIsOn = await isDurationOn(id);
+  const timestampIsEnabled = await getTimestampStatus(id);
+  const durationIsEnabled = await getDurationStatus(id);
 
-  if (!timestampIsOn && !durationIsOn) return;
+  if (!timestampIsEnabled && !durationIsEnabled) return;
 
   const message = deunionize(ctx.message);
 
@@ -102,13 +105,13 @@ bot.url(YOUTUBE_URL, async (ctx) => {
   const parsedUrl = parseUrl(input);
   const texts: string[] = [];
 
-  if (timestampIsOn && hasUserTimestamp(message.text) === false) {
+  if (timestampIsEnabled && noUserTimestamp(message.text)) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
     }
   }
-  if (durationIsOn) {
+  if (durationIsEnabled) {
     texts.push(await getDurationText(parsedUrl));
   }
 
