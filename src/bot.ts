@@ -46,14 +46,15 @@ bot.url(YOUTUBE_URL, async (ctx) => {
   const parsedUrl = parseUrl(input);
   const texts: string[] = [];
 
+  if (durationIsEnabled) {
+    texts.push(await getDurationText(parsedUrl));
+  }
+
   if (timestampIsEnabled && hasNoUserTimestamp(message.text)) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
     }
-  }
-  if (durationIsEnabled) {
-    texts.push(await getDurationText(parsedUrl));
   }
 
   const text = texts.join("\n");
@@ -78,13 +79,14 @@ bot.mention(process.env.BOT_USERNAME, async (ctx) => {
   const parsedUrl = parseUrl(url);
   const texts: string[] = [];
 
+  // Always include duration
+  texts.push(await getDurationText(parsedUrl));
+
   // Explicit command call, don't check settings or user provided timestamp
   const timestamp = getUrlTimestamp(parsedUrl);
   if (timestamp) {
     texts.push(getTimestampText(timestamp));
   }
-  // Always include duration
-  texts.push(await getDurationText(parsedUrl));
 
   const text = texts.join("\n");
   return templateReply(ctx, text, replyMessage.message_id);
