@@ -7,6 +7,7 @@ import {
 } from "../core";
 import { getSettingState } from "../core/redis";
 import {
+  findFirstArg,
   hasNoUserTimestamp,
   templateReply,
   YOUTUBE_URL,
@@ -17,10 +18,46 @@ import { Settings } from "./settings";
 const durationTimestampCommands = new Composer();
 
 durationTimestampCommands.command(["dt", "td"], async (ctx) => {
-  ctx.reply("WIP");
+  const textArg = findFirstArg(ctx.message.text);
+  const replyArg = deunionize(ctx.message.reply_to_message);
+
+  let messageText: string | undefined;
+  let replyMessageId: number | undefined;
+
+  if (textArg) {
+    messageText = textArg;
+    replyMessageId = ctx.message.message_id;
+  } else if (replyArg?.text) {
+    messageText = replyArg.text;
+    replyMessageId = replyArg.message_id;
+  }
+
+  if (!messageText) return;
+
+  const parsedUrl = parseUrl(messageText);
+  const messages: string[] = [];
+
+  const timestamp = getUrlTimestamp(parsedUrl);
+
+  try {
+    const duration = await getDurationText(parsedUrl);
+    messages.push(duration);
+
+    if (timestamp) {
+      messages.push(getTimestampText(timestamp));
+    }
+  } catch (error) {
+    // if no timestamp - display duration error message to provide some feedback
+    if (!timestamp) {
+      return templateReply(ctx, error.message, replyMessageId);
+    }
+  }
+
+  const message = messages.join("\n");
+  return templateReply(ctx, message, replyMessageId);
 });
 
-// Listen for texts containing YouTube's url
+// Listen for texts containing YouTube url
 durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
   if (!ctx.message) return;
   const id = ctx.chat.id;
