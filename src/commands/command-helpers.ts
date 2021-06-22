@@ -25,4 +25,4 @@ const TELEGRAM_TIMESTAMP = /(\d{1,2}:\d{1,2}(?::\d{1,2})?)/;
 const hasNoUserTimestamp = (text = ""): boolean =>
   TELEGRAM_TIMESTAMP.test(text) === false;
 
-export { YOUTUBE_URL, hasNoUserTimestamp, templateReply, findFirstArg };
+export { findFirstArg, templateReply, YOUTUBE_URL, hasNoUserTimestamp };

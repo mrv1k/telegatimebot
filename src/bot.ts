@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { Telegraf } from "telegraf";
 import commands from "./commands";
-import redis from "./core/redis";
 import errorHandler from "./core/error-handler";
+import redis from "./core/redis";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;

@@ -1,5 +1,4 @@
 import { Composer, deunionize } from "telegraf";
-import { Settings } from "./settings";
 import {
   getDurationText,
   getTimestampText,
@@ -7,8 +6,12 @@ import {
   parseUrl,
 } from "../core";
 import { getSettingState } from "../core/redis";
-import { templateReply } from "../parts/helpers";
-import { hasNoUserTimestamp, YOUTUBE_URL } from "../parts/helpers";
+import {
+  hasNoUserTimestamp,
+  templateReply,
+  YOUTUBE_URL,
+} from "./command-helpers";
+import { Settings } from "./settings";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();

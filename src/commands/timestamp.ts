@@ -1,7 +1,6 @@
 import { Composer, deunionize } from "telegraf";
-
 import { getTimestampText, getUrlTimestampOrThrow, parseUrl } from "../core";
-import { templateReply, findFirstArg } from "../parts/helpers";
+import { findFirstArg, templateReply } from "./command-helpers";
 
 const timestampCommands = new Composer();
 
