@@ -1,13 +1,8 @@
 # TelegaTimeBot
 
-Add this bot <https://t.me/telegatimebot>
+Solves YouTube in Telegram annoyances by getting video duration and converting timestamp.
 
-## Features
-
-Telegram bot that makes sharing YouTube urls more pleasant by:
-
-- converting YouTube's url timestamp to Telegram timestamp
-- fetching YouTube's video duration
+Add: <https://t.me/telegatimebot>
 
 ## Other
 
