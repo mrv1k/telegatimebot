@@ -8,10 +8,11 @@ const HELP_TEXT = `
 /dt \\- /duration & /timestamp combined
 /d \\- shorthand for /duration
 /t \\- shorthand for /timestamp
-hint: you can point me to link by replying to a message with command
-
 /settings \\- open settings
 /help \\- display help message
+
+hint: send \\<link\\> via reply message
+click /timestamp to see an example
 
 _Not all commands are added to_ '/' _suggestions_`;
 
