@@ -7,10 +7,8 @@ import errorHandler from "./parts/error-handler";
 const bot = new Telegraf(process.env.BOT_TOKEN);
 process.title = process.env.BOT_USERNAME;
 
-// Middleware
-bot.catch(errorHandler);
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
-
+bot.catch(errorHandler);
 bot.use(commands);
 
 bot.launch();
@@ -22,6 +20,7 @@ process.once("SIGINT", () => {
   bot.stop("SIGINT");
 });
 
+// Enable graceful kill
 process.once("SIGTERM", () => {
   redis.disconnect();
   bot.stop("SIGTERM");

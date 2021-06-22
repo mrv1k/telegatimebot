@@ -1,5 +1,6 @@
 import { youtube } from "@googleapis/youtube";
 import { Duration, parse as parseISO8601 } from "iso8601-duration";
+import { YouTubeAPIError } from "../parts/error-handler";
 
 const part = ["contentDetails", "liveStreamingDetails"];
 
@@ -37,13 +38,5 @@ export async function fetchDuration(id: string): Promise<Duration> {
     // rethrow as is
     if (error instanceof YouTubeAPIError) throw error;
     throw new YouTubeAPIError("YouTube API failed", error.stack);
-  }
-}
-
-export class YouTubeAPIError extends Error {
-  constructor(message: string, stack?: string) {
-    super(message);
-    this.name = "YouTubeAPIError";
-    if (stack) this.stack = stack;
   }
 }
