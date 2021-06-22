@@ -1,13 +1,14 @@
 import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
+import { UrlParseError } from "./error-handler";
 import { formatTime, secondsToTime } from "./time";
 import { fetchDuration } from "./youtube-api";
 
 export function parseUrl(text: string): VideoInfo {
   const parsedUrl = urlParser.parse(text);
   if (parsedUrl) return parsedUrl;
-  throw Error("Could not parse YouTube's URL");
+  throw new UrlParseError("Could not parse YouTube link");
 }
 
 export async function getDurationText(parsedUrl: VideoInfo): Promise<string> {
@@ -26,13 +27,13 @@ export function getUrlTimestamp(parsedUrl: VideoInfo): number | undefined {
   }
 }
 
-export function getTimestampText(timestamp: number): string {
-  const timestampText = formatTime(secondsToTime(timestamp));
-  return `Timestamp: ${timestampText}`;
-}
-
 export function getUrlTimestampOrThrow(parsedUrl: VideoInfo): number {
   const parsed = getUrlTimestamp(parsedUrl);
   if (parsed) return parsed;
-  throw Error("Could not get timestamp");
+  throw new UrlParseError("Could not get timestamp");
+}
+
+export function getTimestampText(timestamp: number): string {
+  const timestampText = formatTime(secondsToTime(timestamp));
+  return `Timestamp: ${timestampText}`;
 }

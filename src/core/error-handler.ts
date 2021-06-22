@@ -10,9 +10,14 @@ export default async function errorHandler(
     return;
   }
 
+  if (error instanceof UrlParseError) {
+    ctx.reply(error.message);
+    return;
+  }
+
   // if (error instanceof TimeError) {
-  //    ctx.reply(error.message);
-  //    return
+  //   ctx.reply(error.message);
+  //   return;
   // }
 
   process.exitCode = 1;
@@ -43,12 +48,12 @@ class YouTubeAPIError extends Error {
 //   }
 // }
 
-// class Youtoob extends Error {
-//   constructor(message: string, stack?: string) {
-//     super(message);
-//     this.name = "YouTubeAPIError";
-//     if (stack) this.stack = stack;
-//   }
-// }
+class UrlParseError extends Error {
+  constructor(message: string, stack?: string) {
+    super(message);
+    this.name = "UrlParseError";
+    if (stack) this.stack = stack;
+  }
+}
 
-export { YouTubeAPIError };
+export { YouTubeAPIError, UrlParseError };
