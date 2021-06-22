@@ -1,18 +1,31 @@
-import { Composer, deunionize } from "telegraf";
+import {
+  Composer,
+  Context,
+  deunionize,
+  MiddlewareFn,
+  NarrowedContext,
+} from "telegraf";
+import { Update } from "telegraf/typings/core/types/typegram";
 import { getDurationText, parseUrl } from "../core";
 import { findFirstArg, templateReply } from "./command-helpers";
 
 const durationCommands = new Composer();
 const COMMANDS = ["d", "duration"];
 
-// Check for url argument. eg: /duration <url>
-durationCommands.command(COMMANDS, async (ctx, next) => {
+type TextContext = NarrowedContext<Context, Update.MessageUpdate> & {
+  message: { text: string };
+};
+
+const textDurationMiddleware: MiddlewareFn<TextContext> = async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
   if (!textArg) return next();
 
   const duration = await getDurationText(parseUrl(textArg));
-  templateReply(ctx, duration, ctx.message.message_id);
-});
+  return templateReply(ctx, duration, ctx.message.message_id);
+};
+
+// Check for url argument. eg: /duration <url>
+durationCommands.command(COMMANDS, textDurationMiddleware);
 
 // Check for reply. eg: /duration <reply_message>
 durationCommands.command(COMMANDS, async (ctx, next) => {
@@ -20,9 +33,7 @@ durationCommands.command(COMMANDS, async (ctx, next) => {
   if (!replyArg || !replyArg.text) return next();
 
   const duration = await getDurationText(parseUrl(replyArg.text));
-  if (duration) {
-    templateReply(ctx, duration, replyArg.message_id);
-  }
+  templateReply(ctx, duration, replyArg.message_id);
 });
 
 // Fallback. Show an example
