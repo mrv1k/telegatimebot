@@ -3,6 +3,8 @@
 // Telegram formats video timestamp in military time (not 100% sure)
 // https://github.com/TelegramMessenger/Telegram-iOS/blob/release-7.6.2/submodules/TelegramStringFormatting/Sources/DateFormat.swift#L29
 
+import { TimeError } from "./error-handler";
+
 const pad0 = (digit: number) => `${digit <= 9 ? "0" : ""}${digit}`;
 
 type Time = {
@@ -22,7 +24,9 @@ export function formatTime(time: Time): string {
 
   const hasAll = [hasSeconds, hasMinutes, hasHours, hasDays];
   if (hasAll.every((v) => v === false)) {
-    throw Error("Nothing to format - seconds, minutes, hours and days are 0");
+    throw new TimeError(
+      "Nothing to format - seconds, minutes, hours and days are 0"
+    );
   }
 
   const onlySeconds = hasSeconds && !hasMinutes && !hasHours && !hasDays;
