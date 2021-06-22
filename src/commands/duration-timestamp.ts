@@ -8,7 +8,7 @@ import {
 } from "../core";
 import { getSettingState } from "../core/redis";
 import { templateReply } from "../parts/helpers";
-import { hasNoUserTimestamp, YOUTUBE_URL } from "../parts/regexp";
+import { hasNoUserTimestamp, YOUTUBE_URL } from "../parts/helpers";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
