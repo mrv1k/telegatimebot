@@ -1,6 +1,6 @@
 import { youtube } from "@googleapis/youtube";
 import { Duration, parse as parseISO8601 } from "iso8601-duration";
-import { YouTubeAPIError } from "../parts/error-handler";
+import { YouTubeAPIError } from "./error-handler";
 
 const part = ["contentDetails", "liveStreamingDetails"];
 

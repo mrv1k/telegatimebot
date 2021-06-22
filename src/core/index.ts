@@ -1,9 +1,8 @@
 import urlParser from "js-video-url-parser/lib/base";
 import "js-video-url-parser/lib/provider/youtube";
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
-
-import { fetchDuration } from "./youtube-api";
 import { formatTime, secondsToTime } from "./time";
+import { fetchDuration } from "./youtube-api";
 
 export function parseUrl(text: string): VideoInfo {
   const parsedUrl = urlParser.parse(text);
