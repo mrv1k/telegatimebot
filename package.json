@@ -1,8 +1,8 @@
 {
   "name": "telegatimebot",
   "version": "1.0.0",
-  "description": "Telegram bot that converts YouTube's timestamp and fetches duration",
-  "main": "./dist/src/bot.js",
+  "description": "Solves YouTube in Telegram annoyances by getting video duration and converting timestamp.",
+  "main": "src/bot.ts",
   "scripts": {
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf dist",
@@ -16,8 +16,11 @@
     "type": "git",
     "url": "git+https://github.com/mrv1k/telegatimebot.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "telegram",
+    "bot"
+  ],
+  "author": "Viktor Khotimchenko <viktorkhotimchenko@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mrv1k/telegatimebot/issues"
