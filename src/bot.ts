@@ -4,8 +4,13 @@ import commands from "./commands";
 import errorHandler from "./core/error-handler";
 import redis from "./core/redis";
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
-process.title = process.env.BOT_USERNAME;
+const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
+if (BOT_TOKEN === undefined) {
+  throw new TypeError("BOT_TOKEN must be provided");
+}
+process.title = BOT_USERNAME;
+
+const bot = new Telegraf(BOT_TOKEN);
 
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 bot.catch(errorHandler);

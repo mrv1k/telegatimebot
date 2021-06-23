@@ -4,6 +4,11 @@ import { YouTubeAPIError } from "./error-handler";
 
 const part = ["contentDetails", "liveStreamingDetails"];
 
+const { YOUTUBE_API_KEY } = process.env;
+if (YOUTUBE_API_KEY === undefined) {
+  throw new TypeError("YOUTUBE_API_KEY must be provided!");
+}
+
 const client = youtube({
   version: "v3",
   auth: process.env.YOUTUBE_API_KEY,

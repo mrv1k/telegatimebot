@@ -89,7 +89,9 @@ durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
 });
 
 // Defensive programming FTW!
-durationTimestampCommands.mention(process.env.BOT_USERNAME, async (ctx) => {
+const { BOT_USERNAME = "telegatimebot" } = process.env;
+
+durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
   if (!ctx.message) return;
   const message = deunionize(ctx.message);
 
