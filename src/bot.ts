@@ -16,12 +16,12 @@ console.log("I am ALIVE!");
 
 // Enable graceful stop
 process.once("SIGINT", () => {
-  redis.disconnect();
   bot.stop("SIGINT");
+  redis.disconnect();
 });
 
 // Enable graceful kill
 process.once("SIGTERM", () => {
-  redis.disconnect();
   bot.stop("SIGTERM");
+  redis.disconnect();
 });

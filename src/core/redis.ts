@@ -2,14 +2,30 @@ import Redis from "ioredis";
 import { Settings } from "../commands/settings";
 
 // https://github.com/luin/ioredis#error-handling
-// https://github.com/luin/ioredis#tls-options for redis labs
-const redis = new Redis({
+// https://docs.redislabs.com/latest/rs/references/client_references/client_ioredis/
+
+const options: Redis.RedisOptions = {
   port: 6379,
   host: "127.0.0.1",
   password: "",
-});
+  showFriendlyErrorStack: process.env.NODE_ENV !== "production",
+};
+
+if (process.env.NODE_ENV === "production") {
+  options.port = process.env.REDIS_PORT;
+  options.host = process.env.REDIS_HOST;
+  options.password = process.env.REDIS_PASSWORD;
+}
+
+const redis = new Redis(options);
+
+// redis.on("error", (err) => {
+//   console.log("WIYWIY", err);
+// });
 
 async function toggleSetting(id: number, setting: Settings): Promise<boolean> {
+  // if (!redis) return false;
+
   const key = makeRedisKey(id, setting);
   // 0 - enabled, 1 - disabled
   const exists = await redis.exists(key);
@@ -33,7 +49,12 @@ async function toggleSetting(id: number, setting: Settings): Promise<boolean> {
 const getSettingState = async (
   id: number,
   setting: Settings
-): Promise<boolean> => (await redis.exists(makeRedisKey(id, setting))) === 0;
+): Promise<boolean> => {
+  // if (!redis) return false;
+
+  const exists = await redis.exists(makeRedisKey(id, setting));
+  return exists === 0;
+};
 
 const makeRedisKey = (id: number, setting: Settings): string =>
   `${id}:${setting}`;
