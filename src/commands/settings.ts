@@ -21,7 +21,7 @@ By default, I passively look for YouTube links\\. \
 When I see one I fetch info\\. Can be disabled in /settings`;
 
 const SETTINGS_TEXT = `<b>Settings:</b>
-What should I run when I see YouTube link?`;
+What should I get when I see YouTube link?`;
 
 settingsCommands.settings(async (ctx) => {
   if (!ctx.chat) return;
@@ -83,14 +83,14 @@ const makeInlineKeyboard = async (initial: InlineKeyboardParams) => {
   const isDurationEnabled =
     initial.isDurationEnabled ??
     (await getSettingState(initial.chatId, Settings.duration));
-  const durationText = `${onOffEmoji(isDurationEnabled)} duration`;
+  const durationText = `${stateWord(isDurationEnabled)} duration`;
 
   const isTimestampEnabled =
     initial.isTimestampEnabled ??
     (await getSettingState(initial.chatId, Settings.timestamp));
-  const timestampText = `${onOffEmoji(isTimestampEnabled)} timestamp`;
+  const timestampText = `${stateWord(isTimestampEnabled)} timestamp`;
 
-  // array of arrays, because multiple row keyboards
+  // array of arrays, because keyboard can have multiple rows
   return Markup.inlineKeyboard([
     [
       Markup.button.callback(durationText, Action.toggleDuration),
@@ -99,7 +99,7 @@ const makeInlineKeyboard = async (initial: InlineKeyboardParams) => {
   ]);
 };
 
-const onOffEmoji = (isOn: boolean) => (isOn ? "❌" : "✅");
+const stateWord = (isEnabled: boolean) => (isEnabled ? "Don't get" : "Get");
 
 export default settingsCommands;
 export { Settings };
