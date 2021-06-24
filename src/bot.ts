@@ -12,11 +12,18 @@ process.title = BOT_USERNAME;
 
 const bot = new Telegraf(BOT_TOKEN);
 
+const options: Telegraf.LaunchOptions = {};
+
+if (process.env.NODE_ENV === "production" && process.env.DOMAIN) {
+  const PORT = Number(process.env.PORT) || 3000;
+  options.webhook = { domain: process.env.DOMAIN, port: PORT };
+}
+
 if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
 bot.catch(errorHandler);
 bot.use(commands);
 
-bot.launch();
+bot.launch(options);
 console.log("I am ALIVE!");
 
 // Enable graceful stop
