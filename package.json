@@ -16,8 +16,7 @@
     "build": "NODE_ENV=production tsc -p tsconfig.json",
     "start:pm2": "pm2-runtime start ecosystem.config.js --env production",
     "ship-it": "npm run start:pm2",
-    "postinstall": "npm run build",
-    "heroku-postbuild": "npm run ship-it"
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
