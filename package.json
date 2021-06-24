@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Solves YouTube in Telegram annoyances by getting video duration and converting timestamp.",
   "main": "src/bot.ts",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf dist",
@@ -12,7 +15,9 @@
     "live-prod": "NODE_ENV=production npm run ts-node",
     "build": "NODE_ENV=production tsc -p tsconfig.json",
     "start:pm2": "pm2-runtime start ecosystem.config.js --env production",
-    "ship-it": "npm run build && npm run start:pm2"
+    "ship-it": "npm run start:pm2",
+    "postinstall": "npm run build",
+    "heroku-postbuild": "npm run ship-it"
   },
   "repository": {
     "type": "git",
