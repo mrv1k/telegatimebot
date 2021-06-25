@@ -40,7 +40,7 @@ durationCommands.command(COMMANDS, async (ctx, next) => {
 durationCommands.command(COMMANDS, async (ctx) => {
   const command = ctx.message.text;
 
-  await ctx.reply("Gets YouTube video duration \nFor example:");
+  await ctx.reply("Gets YouTube duration \nFor example:");
 
   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
   const botMessage = await ctx.reply(`${command} ${rickUrl}`, {

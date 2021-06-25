@@ -35,7 +35,8 @@ timestampCommands.command(COMMANDS, async (ctx) => {
   const botMessage = await templateReply(ctx, alrightThisIsCS50Url);
 
   await templateReply(ctx, command, botMessage.message_id);
-  await templateReply(ctx, "0:49", botMessage.message_id);
+  const stubbedTimestamp = "0:49";
+  await templateReply(ctx, stubbedTimestamp, botMessage.message_id);
 });
 
 export default timestampCommands;

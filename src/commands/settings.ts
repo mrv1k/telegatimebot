@@ -15,7 +15,7 @@ enum Action {
 }
 
 `I solve YouTube in Telegram annoyances \
-by getting video duration and converting timestamp\\.
+by getting duration and converting timestamp\\.
 
 By default, I passively look for YouTube links\\. \
 When I see one I fetch info\\. Can be disabled in /settings`;
