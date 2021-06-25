@@ -88,8 +88,6 @@ durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
   const timestampIsEnabled = await getSettingState(id, Settings.timestamp);
   const durationIsEnabled = await getSettingState(id, Settings.duration);
 
-  if (!timestampIsEnabled && !durationIsEnabled) return;
-
   const message = deunionize(ctx.message);
 
   const input = ctx.match.input;
@@ -107,8 +105,11 @@ durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
     }
   }
 
-  const text = texts.join("\n");
-  return templateReply(ctx, text, ctx.message.message_id);
+  // Handle a case when duration is disabled and timestamp is not present
+  if (texts.length !== 0) {
+    const text = texts.join("\n");
+    return templateReply(ctx, text, ctx.message.message_id);
+  }
 });
 
 // Defensive programming FTW!

@@ -21,10 +21,11 @@ export default async function errorHandler(
   }
 
   process.exitCode = 1;
-  console.error("Unhandled error while processing", ctx.update);
+  // console.error("Unhandled error while processing", error);
+  // console.log("broken by", ctx.update);
   ctx.reply("apologies, something broke");
   process.kill(process.pid, "SIGINT");
-  // throw error;
+  throw error;
 
   // ⚠️ Always rethrow TimeoutError!
   // set exit code to emulate `warn-with-error-code` behavior of
