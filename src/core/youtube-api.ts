@@ -31,13 +31,15 @@ export async function fetchDuration(id: string): Promise<Duration> {
 
     const item = items[0];
 
+    const rawDuration = item?.contentDetails?.duration;
+
+    if (rawDuration && rawDuration !== "P0D") {
+      return parseISO8601(rawDuration);
+    }
+
     if (item.liveStreamingDetails) {
       throw new YouTubeAPIError("Livestream Duration: ¯\\_(ツ)_/¯");
     }
-
-    const rawDuration = item?.contentDetails?.duration;
-    if (rawDuration) return parseISO8601(rawDuration);
-
     throw new YouTubeAPIError("Couldn't get duration from YouTube");
   } catch (error) {
     // rethrow as is
