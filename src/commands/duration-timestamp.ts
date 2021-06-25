@@ -16,8 +16,9 @@ import { Settings } from "./settings";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
+const COMMANDS = ["dt", "td", "durationtimestamp"];
 
-durationTimestampCommands.command(["dt", "td"], async (ctx) => {
+durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
   const replyArg = deunionize(ctx.message.reply_to_message);
 
@@ -30,6 +31,9 @@ durationTimestampCommands.command(["dt", "td"], async (ctx) => {
   } else if (replyArg?.text) {
     messageText = replyArg.text;
     replyMessageId = replyArg.message_id;
+  } else {
+    // show an example
+    next();
   }
 
   if (!messageText) return;
@@ -55,6 +59,25 @@ durationTimestampCommands.command(["dt", "td"], async (ctx) => {
 
   const message = messages.join("\n");
   return templateReply(ctx, message, replyMessageId);
+});
+
+durationTimestampCommands.command(COMMANDS, async (ctx) => {
+  const command = ctx.message.text;
+
+  await ctx.reply("Get duration and convert timestamp \nFor example:");
+
+  const myMotherToldMeUrl = "https://youtu.be/4dIiN57DQOI?t=4";
+  const botMessage = await templateReply(ctx, myMotherToldMeUrl);
+
+  const stubbedDuration = "Duration: \u200c3:17\n";
+  const stubbedTimestamp = "Timestamp: 0:04";
+
+  await templateReply(ctx, command, botMessage.message_id);
+  await templateReply(
+    ctx,
+    stubbedDuration + stubbedTimestamp,
+    botMessage.message_id
+  );
 });
 
 // Listen for texts containing YouTube url
