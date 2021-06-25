@@ -32,6 +32,7 @@ export async function fetchDuration(id: string): Promise<Duration> {
     const item = items[0];
 
     const rawDuration = item?.contentDetails?.duration;
+    // console.log(rawDuration);
 
     if (rawDuration && rawDuration !== "P0D") {
       return parseISO8601(rawDuration);

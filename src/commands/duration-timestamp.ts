@@ -69,7 +69,7 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
   const myMotherToldMeUrl = "https://youtu.be/4dIiN57DQOI?t=4";
   const botMessage = await templateReply(ctx, myMotherToldMeUrl);
 
-  const stubbedDuration = "Duration: \u200c3:17\n";
+  const stubbedDuration = "Duration: \u200c3:18\n";
   const stubbedTimestamp = "Timestamp: 0:04";
 
   await templateReply(ctx, command, botMessage.message_id);
