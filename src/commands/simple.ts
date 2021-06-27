@@ -14,7 +14,7 @@ const HELP_TEXT = `
 hint: send \\<link\\> via reply message
 click /timestamp to see an example
 
-_Not all commands are added to_ '/' _suggestions_`;
+_Not all commands are added to_ '/' _suggestions_ or bot menu`;
 
 const START_TEXT =
   `I solve YouTube in Telegram annoyances \
