@@ -10,11 +10,7 @@ Add: <https://t.me/telegatimebot>
 
 ### Commands video
 
-<a href="{./readme_assets/show-commands.mp4}" title="Link Title"><img src="{image-url}" alt="Alternate Text" /></a>
-
-![video](./readme_assets/show-commands.mp4)
-
-<./readme_assets/show-commands.mp4>
+https://user-images.githubusercontent.com/23367894/123530957-11a7c680-d722-11eb-8484-5cff340f36ee.mp4
 
 ### Commands list
 
