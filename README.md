@@ -8,7 +8,15 @@ Add: <https://t.me/telegatimebot>
 
 ![Empty bot chat - Bot activated - Showcase @duration command](./readme_assets/in-use.jpeg "Empty bot chat - Bot activated - Showcase @duration command")
 
-### Commands
+### Commands video
+
+<a href="{./readme_assets/show-commands.mp4}" title="Link Title"><img src="{image-url}" alt="Alternate Text" /></a>
+
+![video](./readme_assets/show-commands.mp4)
+
+<./readme_assets/show-commands.mp4>
+
+### Commands list
 
 > `/start` - star the bot
 
