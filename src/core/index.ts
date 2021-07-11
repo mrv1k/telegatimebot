@@ -7,8 +7,12 @@ import { fetchDuration } from "./youtube-api";
 
 export function parseUrl(text: string): VideoInfo {
   const parsedUrl = urlParser.parse(text);
-  if (parsedUrl) return parsedUrl;
-  throw new UrlParseError("Could not parse YouTube link");
+  if (!parsedUrl) throw new UrlParseError("Could not parse YouTube link");
+  if (parsedUrl.mediaType === "playlist")
+    throw new UrlParseError(
+      "Can't fetch duration of a playlist. Please specify a video"
+    );
+  return parsedUrl;
 }
 
 export async function getDurationText(parsedUrl: VideoInfo): Promise<string> {

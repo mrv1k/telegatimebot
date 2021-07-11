@@ -45,6 +45,9 @@ export async function fetchDuration(id: string): Promise<Duration> {
   } catch (error) {
     // rethrow as is
     if (error instanceof YouTubeAPIError) throw error;
-    throw new YouTubeAPIError("YouTube API failed", error.stack);
+    throw new YouTubeAPIError(
+      "Something went wrong with YouTube API and I have no idea what",
+      error.stack
+    );
   }
 }
