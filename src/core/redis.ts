@@ -5,28 +5,26 @@ import { Settings } from "../commands/settings";
 // https://docs.redislabs.com/latest/rs/references/client_references/client_ioredis/
 
 const options: Redis.RedisOptions = {
-  host: "127.0.0.1",
-  port: 6379,
-  password: "",
+  // host: "127.0.0.1",
+  // port: 6379,
+  // password: "",
   showFriendlyErrorStack: process.env.NODE_ENV !== "production",
 };
 
-if (process.env.NODE_ENV === "production") {
-  const { REDIS_PORT, REDIS_HOST, REDIS_PASSWORD } = process.env;
-  if (REDIS_HOST && REDIS_PORT && REDIS_PASSWORD) {
-    options.host = REDIS_HOST;
-    options.port = Number(REDIS_PORT);
-    options.password = REDIS_PASSWORD;
-  } else {
-    throw new TypeError("Redis ENV variable is missing");
-  }
+const { REDIS_PORT, REDIS_HOST, REDIS_PASSWORD } = process.env;
+if (REDIS_HOST && REDIS_PORT && REDIS_PASSWORD) {
+  options.host = REDIS_HOST;
+  options.port = Number(REDIS_PORT);
+  options.password = REDIS_PASSWORD;
+} else {
+  throw new TypeError("Redis ENV variable is missing");
 }
 
 const redis = new Redis(options);
 
-// redis.on("error", (err) => {
-//   console.log("WIYWIY", err);
-// });
+redis.on("error", (err) => {
+  throw new TypeError(`Redis error ${err}`);
+});
 
 async function toggleSetting(id: number, setting: Settings): Promise<boolean> {
   // if (!redis) return false;
