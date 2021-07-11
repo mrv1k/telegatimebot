@@ -23,7 +23,7 @@ export default async function errorHandler(
   process.exitCode = 1;
   // console.error("Unhandled error while processing", error);
   // console.log("broken by", ctx.update);
-  ctx.reply("apologies, something broke");
+  ctx.reply("Something inside me just broke");
   process.kill(process.pid, "SIGINT");
   throw error;
 
