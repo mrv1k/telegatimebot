@@ -12,11 +12,11 @@
     "ts-node": "ts-node --files ./src/bot.ts",
     "dev": "NODE_ENV=development npm run ts-node",
     "debug": "NODE_ENV=debug npm run ts-node",
-    "live-prod": "NODE_ENV=production npm run ts-node",
+    "dev-with-prod-env": "NODE_ENV=production npm run ts-node",
     "build": "NODE_ENV=production tsc -p tsconfig.json",
     "start:pm2": "pm2-runtime start ecosystem.config.js --env production",
-    "ship-it": "npm run start:pm2",
-    "postinstall": "npm run build"
+    "ship-it": "npm run clean && npm run build && npm run start:pm2",
+    "start": "npm install && npm run ship-it"
   },
   "repository": {
     "type": "git",
