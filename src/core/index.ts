@@ -5,8 +5,17 @@ import { UrlParseError } from "./error-handler";
 import { formatTime, secondsToTime } from "./time";
 import { fetchDuration } from "./youtube-api";
 
+const SHORTS_URL = "shorts/";
+const REGULAR_URL = "watch?v=";
+
 export function parseUrl(text: string): VideoInfo {
+  // youtube shorts are regular videos but parser currently does not support them
+  if (text.includes(SHORTS_URL)) {
+    text = text.replace(SHORTS_URL, REGULAR_URL);
+  }
+
   const parsedUrl = urlParser.parse(text);
+
   if (!parsedUrl) throw new UrlParseError("Could not parse YouTube link");
   if (parsedUrl.mediaType === "playlist")
     throw new UrlParseError(
