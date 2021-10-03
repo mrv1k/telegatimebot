@@ -52,7 +52,7 @@ durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
     }
   } catch (error) {
     // if no timestamp - display duration error message to provide some feedback
-    if (!timestamp) {
+    if (!timestamp && error instanceof Error) {
       return templateReply(ctx, error.message, replyMessageId);
     }
   }

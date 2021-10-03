@@ -32,7 +32,7 @@ export async function fetchDuration(id: string): Promise<Duration> {
     const item = items[0];
 
     const rawDuration = item?.contentDetails?.duration;
-    // console.log(rawDuration);
+    // console.log("rawDuration", rawDuration);
 
     if (rawDuration && rawDuration !== "P0D") {
       return parseISO8601(rawDuration);
@@ -45,9 +45,15 @@ export async function fetchDuration(id: string): Promise<Duration> {
   } catch (error) {
     // rethrow as is
     if (error instanceof YouTubeAPIError) throw error;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let stack: any;
+    if (error instanceof Error) {
+      ({ stack } = error);
+    }
     throw new YouTubeAPIError(
       "Something went wrong with YouTube API and I have no idea what",
-      error.stack
+      stack
     );
   }
 }
