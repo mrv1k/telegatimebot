@@ -5,14 +5,12 @@ import {
   getUrlTimestamp,
   parseUrl,
 } from "../core";
-import { getSettingState } from "../core/redis";
 import {
   findFirstArg,
   hasNoUserTimestamp,
   templateReply,
   YOUTUBE_URL,
 } from "./command-helpers";
-import { Settings } from "./settings";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
@@ -83,32 +81,19 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
 // Listen for texts containing YouTube url
 durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
   if (!ctx.message) return;
-  const id = ctx.chat.id;
-
-  const timestampIsEnabled = await getSettingState(id, Settings.timestamp);
-  const durationIsEnabled = await getSettingState(id, Settings.duration);
-
   const message = deunionize(ctx.message);
 
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
   const texts: string[] = [];
 
-  if (durationIsEnabled) {
-    texts.push(await getDurationText(parsedUrl));
-  }
+  texts.push(await getDurationText(parsedUrl));
 
-  if (timestampIsEnabled && hasNoUserTimestamp(message.text)) {
+  if (hasNoUserTimestamp(message.text)) {
     const timestamp = getUrlTimestamp(parsedUrl);
     if (timestamp) {
       texts.push(getTimestampText(timestamp));
     }
-  }
-
-  // Handle a case when duration is disabled and timestamp is not present
-  if (texts.length !== 0) {
-    const text = texts.join("\n");
-    return templateReply(ctx, text, ctx.message.message_id);
   }
 });
 
