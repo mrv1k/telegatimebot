@@ -5,12 +5,7 @@ import {
   getUrlTimestamp,
   parseUrl,
 } from "../core";
-import {
-  findFirstArg,
-  hasNoUserTimestamp,
-  templateReply,
-  YOUTUBE_URL,
-} from "./command-helpers";
+import { findFirstArg, templateReply } from "./command-helpers";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
@@ -78,30 +73,8 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
   );
 });
 
-// Listen for texts containing YouTube URL
-durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
-  console.log('spy')
-  if (!ctx.message) return;
-  const message = deunionize(ctx.message);
 
-  const input = ctx.match.input;
-  const parsedUrl = parseUrl(input);
-
-  const duration = await getDurationText(parsedUrl)
-  const texts: string[] = [duration];
-
-  if (hasNoUserTimestamp(message.text)) {
-    const timestamp = getUrlTimestamp(parsedUrl);
-    if (timestamp) {
-      texts.push(getTimestampText(timestamp));
-    }
-  }
-  
-  const text = texts.join("\n");
-  console.log(texts.length, text)
-  return templateReply(ctx, text, ctx.message.message_id);
-});
-
+// Listen for bot name mentions.
 // Defensive programming FTW!
 const { BOT_USERNAME = "telegatimebot" } = process.env;
 

@@ -5,9 +5,11 @@ export default async function errorHandler(
   ctx: Context
 ): Promise<void> {
   // Follow order in which errors may occur
-  if (error instanceof YouTubeAPIError ||
+  if (
+    error instanceof YouTubeAPIError ||
     error instanceof UrlParseError ||
-    error instanceof TimeError) {
+    error instanceof TimeError
+  ) {
     ctx.reply(error.message);
     return;
   }
