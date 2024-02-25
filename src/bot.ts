@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Telegraf } from "telegraf";
 import commands from "./commands";
-import errorHandler from "./core/error-handler";
+import errorHandler from "./errors";
 import http from "http";
 
 const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;

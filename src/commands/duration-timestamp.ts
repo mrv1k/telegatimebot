@@ -1,11 +1,9 @@
 import { Composer, deunionize } from "telegraf";
-import {
-  getDurationText,
-  getTimestampText,
-  getUrlTimestamp,
-  parseUrl,
-} from "../core";
-import { findFirstArg, templateReply } from "./command-helpers";
+import { getDurationText } from "./duration";
+
+import { getTimestampText, getUrlTimestamp } from "./timestamp";
+import { parseUrl } from "../url-parser";
+import { findFirstArg, templateReply } from "../helpers";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
@@ -72,7 +70,6 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
     botMessage.message_id
   );
 });
-
 
 // Listen for bot name mentions.
 // Defensive programming FTW!

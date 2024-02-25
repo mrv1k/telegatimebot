@@ -1,8 +1,8 @@
 import { youtube } from "@googleapis/youtube";
 import { Duration, parse as parseISO8601Duration } from "iso8601-duration";
-import { YouTubeAPIError } from "./error-handler";
+import { YouTubeAPIError } from "./errors";
 
-export type DurationMaybeStream = {duration: Duration, isStream?: boolean}
+export type DurationMaybeStream = { duration: Duration; isStream?: boolean };
 
 const part = ["contentDetails", "liveStreamingDetails"];
 const LIVESTREAM_DURATION = "P0D";
@@ -38,12 +38,12 @@ export async function fetchDuration(id: string): Promise<DurationMaybeStream> {
       item.liveStreamingDetails?.actualStartTime
     );
     const duration = parseISO8601Duration(derivedDuration);
-    return {duration, isStream: true}
+    return { duration, isStream: true };
   }
 
   if (isoDuration) {
     const duration = parseISO8601Duration(isoDuration);
-    return {duration}
+    return { duration };
   }
 
   throw new YouTubeAPIError("Couldn't get duration from YouTube");

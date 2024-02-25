@@ -1,15 +1,9 @@
 import { Composer, deunionize } from "telegraf";
-import {
-  getDurationText,
-  getTimestampText,
-  getUrlTimestamp,
-  parseUrl,
-} from "../core";
-import {
-  hasNoUserTimestamp,
-  templateReply,
-  YOUTUBE_URL,
-} from "./command-helpers";
+
+import { getTimestampText, getUrlTimestamp } from "./timestamp";
+import { getDurationText } from "./duration";
+import { parseUrl } from "../url-parser";
+import { hasNoUserTimestamp, templateReply, YOUTUBE_URL } from "../helpers";
 
 const spy = new Composer();
 
@@ -35,4 +29,4 @@ spy.url(YOUTUBE_URL, async (ctx) => {
   return templateReply(ctx, text, ctx.message.message_id);
 });
 
-export default spy
+export default spy;

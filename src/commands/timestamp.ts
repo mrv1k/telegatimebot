@@ -1,6 +1,32 @@
 import { Composer, deunionize } from "telegraf";
-import { getTimestampText, getUrlTimestampOrThrow, parseUrl } from "../core";
-import { findFirstArg, templateReply } from "./command-helpers";
+import { findFirstArg, templateReply } from "../helpers";
+import { UrlParseError } from "../errors";
+import { parseUrl } from "../url-parser";
+import { formatTime, secondsToDuration } from "../time";
+
+import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
+
+export function getUrlTimestamp(parsedUrl: VideoInfo): number | undefined {
+  const params = parsedUrl?.params;
+
+  // url parser uses 0 if ?t param is found but failed to parse, ie: ?t=123a or ?t=-1
+  if (params && typeof params.start === "number" && params.start > 0) {
+    // start is timestamp
+    return params.start;
+  }
+}
+
+export function getUrlTimestampOrThrow(parsedUrl: VideoInfo): number {
+  const parsed = getUrlTimestamp(parsedUrl);
+  if (parsed) return parsed;
+  throw new UrlParseError("Could not get timestamp");
+}
+
+export function getTimestampText(timestamp: number): string {
+  const duration = secondsToDuration(timestamp);
+  const timestampText = formatTime({ duration });
+  return `Timestamp: ${timestampText}`;
+}
 
 const timestampCommands = new Composer();
 const COMMANDS = ["t", "timestamp"];

@@ -6,11 +6,21 @@ import {
   NarrowedContext,
 } from "telegraf";
 import { Update } from "telegraf/typings/core/types/typegram";
-import { getDurationText, parseUrl } from "../core";
-import { findFirstArg, templateReply } from "./command-helpers";
+import { parseUrl } from "../url-parser";
+import { findFirstArg, templateReply } from "../helpers";
+import { fetchDuration } from "../youtube-api";
+import { formatTime } from "../time";
+
+import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
 
 const durationCommands = new Composer();
 const COMMANDS = ["d", "duration"];
+
+export async function getDurationText(parsedUrl: VideoInfo): Promise<string> {
+  const duration = await fetchDuration(parsedUrl.id);
+  // Use \u200c (ZERO WIDTH NON-JOINER) to prevent Telegram from making it a timestamp
+  return `Duration: \u200c${formatTime(duration)}`;
+}
 
 type TextContext = NarrowedContext<Context, Update.MessageUpdate> & {
   message: { text: string };
