@@ -1,14 +1,15 @@
 {
   "name": "telegatimebot",
-  "version": "1.0.0",
-  "description": "Solves YouTube in Telegram annoyances by getting video duration and converting timestamp.",
+  "version": "1.1.0",
+  "description": "Gets YouTube duration and timestamp in Telegram",
   "main": "src/bot.ts",
   "engines": {
-    "node": "14.x",
-    "npm": "7.x"
+    "node": "20.x",
+    "npm": "10.x"
   },
   "scripts": {
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "prettier": "prettier src/",
     "clean": "rm -rf dist",
     "ts-node": "ts-node --files ./src/bot.ts",
     "dev": "NODE_ENV=development npm run ts-node",

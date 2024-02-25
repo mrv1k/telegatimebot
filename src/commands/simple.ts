@@ -6,7 +6,7 @@ const HELP_TEXT = `
 /[d]uration \\<link\\> \\- get duration
 /[t]imestamp \\<link?t\\=1\\> \\- convert timestamp
 /dt \\- /duration & /timestamp combined
-/help \\- display help message`
+/help \\- display help message`;
 
 const START_TEXT =
   `Brrr. Boop. I'm a simple [ro]bot. I see YouTube link.

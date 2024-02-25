@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Telegraf } from "telegraf";
 import commands from "./commands";
 import errorHandler from "./core/error-handler";
-import "./server"; // only needed to keep the bot alive
+import http from "http";
 
 const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
 if (BOT_TOKEN === undefined) {
@@ -12,7 +12,10 @@ process.title = BOT_USERNAME;
 
 const bot = new Telegraf(BOT_TOKEN);
 
-if (process.env.NODE_ENV === "debug") bot.use(Telegraf.log());
+if (process.env.NODE_ENV === "debug") {
+  bot.use(Telegraf.log());
+}
+
 bot.catch(errorHandler);
 bot.use(commands);
 
@@ -24,3 +27,12 @@ process.once("SIGINT", () => bot.stop("SIGINT"));
 
 // Enable graceful kill
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
+
+// TODO: will still be needed?
+// server is needed to keep replit alive
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end("Ah, ha, ha, ha, stayin' alive");
+});
+
+server.listen(process.env.PORT || 8080);
