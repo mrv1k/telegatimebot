@@ -9,9 +9,9 @@ const HELP_TEXT = `
 /help \\- display help message`;
 
 const START_TEXT =
-  `Brrr. Boop. I'm a simple [ro]bot. I see YouTube link.
-I fetch duration. I can also convert YT timestamp to Telegram timestamp.
-
+  `Beep-boop. I'm a [ro]bot.\\
+I see a YouTube link. I fetch duration. I also convert timestamp.\\
+May or may not take your job. Still deciding
 ` + HELP_TEXT;
 
 const simpleCommands = new Composer();

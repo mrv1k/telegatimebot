@@ -22,15 +22,12 @@ bot.use(commands);
 bot.launch();
 console.log("I am ALIVE!");
 
-// Enable graceful stop
+// Enable graceful stop & kill
 process.once("SIGINT", () => bot.stop("SIGINT"));
-
-// Enable graceful kill
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
-// TODO: will still be needed?
 // server is needed to keep replit alive
-const server = http.createServer((req, res) => {
+const server = http.createServer((_, res) => {
   res.writeHead(200);
   res.end("Ah, ha, ha, ha, stayin' alive");
 });

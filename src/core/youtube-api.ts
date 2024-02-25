@@ -1,8 +1,9 @@
 import { youtube } from "@googleapis/youtube";
-import { Duration, parse as parseISO8601 } from "iso8601-duration";
+import { Duration, parse as parseISO8601Duration } from "iso8601-duration";
 import { YouTubeAPIError } from "./error-handler";
 
 const part = ["contentDetails", "liveStreamingDetails"];
+const LIVESTREAM_DURATION = "P0D"
 
 const { YOUTUBE_API_KEY } = process.env;
 if (YOUTUBE_API_KEY === undefined) {
@@ -14,46 +15,53 @@ const client = youtube({
   auth: process.env.YOUTUBE_API_KEY,
 });
 
-export async function fetchDuration(id: string): Promise<Duration> {
-  try {
-    const res = await client.videos.list({
-      part,
-      id: [id],
-    });
+export async function metchDuration(id: string): Promise<Duration> {
+  const { data: { items } } = await client.videos.list({ part, id: [id], });
 
-    const {
-      data: { items },
-    } = res;
-
-    if (items === undefined || items.length === 0) {
-      throw new YouTubeAPIError("Video is private or doesn't exist");
-    }
-
-    const item = items[0];
-
-    const rawDuration = item?.contentDetails?.duration;
-    // console.log("rawDuration", rawDuration);
-
-    if (rawDuration && rawDuration !== "P0D") {
-      return parseISO8601(rawDuration);
-    }
-
-    if (item.liveStreamingDetails) {
-      throw new YouTubeAPIError("Livestream Duration: ¯\\_(ツ)_/¯");
-    }
-    throw new YouTubeAPIError("Couldn't get duration from YouTube");
-  } catch (error) {
-    // rethrow as is
-    if (error instanceof YouTubeAPIError) throw error;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let stack: any;
-    if (error instanceof Error) {
-      ({ stack } = error);
-    }
-    throw new YouTubeAPIError(
-      "Something went wrong with YouTube API and I have no idea what",
-      stack
-    );
+  if (items === undefined || items.length === 0) {
+    throw new YouTubeAPIError("Video is private or doesn't exist");
   }
+
+  const item = items[0];
+  const isoDuration = item?.contentDetails?.duration;
+  // console.log(item, isoDuration)
+  
+  // there's no real duration, but I guess we can use start time?
+  if (item.liveStreamingDetails?.actualStartTime
+    && isoDuration == LIVESTREAM_DURATION) {
+    console.log(item.liveStreamingDetails.actualStartTime)
+    const duration = convertDateToDuration(item.liveStreamingDetails?.actualStartTime)
+    const parsed = parseISO8601Duration(duration)
+    console.log(duration, parsed)
+    return parsed
+  }
+
+  if (isoDuration) {
+    return parseISO8601Duration(isoDuration);
+  }
+
+  throw new YouTubeAPIError("Couldn't get duration from YouTube");
 }
+
+function convertDateToDuration(isoDate: string) {
+  const date = new Date(isoDate)
+  const durationMillis = Date.now() - date.getTime()
+
+  // ChatGPT'ed
+  // Convert milliseconds to years, months, days, hours, minutes, and seconds
+  const durationSeconds: number = Math.floor(durationMillis / 1000);
+  const durationMinutes: number = Math.floor(durationSeconds / 60);
+  const durationHours: number = Math.floor(durationMinutes / 60);
+  const durationDays: number = Math.floor(durationHours / 24);
+
+  const years: number = Math.floor(durationDays / 365);
+  const months: number = Math.floor((durationDays % 365) / 30);
+  const days: number = durationDays % 30;
+  const hours: number = durationHours % 24;
+  const minutes: number = durationMinutes % 60;
+  const seconds: number = durationSeconds % 60;
+
+  const durationISO8601 = `P${years}Y${months}M${days}DT${hours}H${minutes}M${seconds}S`;
+  return durationISO8601 
+}
+

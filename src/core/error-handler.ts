@@ -5,17 +5,9 @@ export default async function errorHandler(
   ctx: Context
 ): Promise<void> {
   // Follow order in which errors may occur
-  if (error instanceof YouTubeAPIError) {
-    ctx.reply(error.message);
-    return;
-  }
-
-  if (error instanceof UrlParseError) {
-    ctx.reply(error.message);
-    return;
-  }
-
-  if (error instanceof TimeError) {
+  if (error instanceof YouTubeAPIError ||
+    error instanceof UrlParseError ||
+    error instanceof TimeError) {
     ctx.reply(error.message);
     return;
   }
@@ -23,7 +15,7 @@ export default async function errorHandler(
   process.exitCode = 1;
   // console.error("Unhandled error while processing", error);
   // console.log("broken by", ctx.update);
-  ctx.reply("Something inside me just broke");
+  ctx.reply("Ouch. Something inside me just broke");
   process.kill(process.pid, "SIGINT");
   throw error;
 

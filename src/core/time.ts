@@ -14,34 +14,37 @@ type Time = {
   seconds?: number;
 };
 
-export function formatTime(time: Time): string {
+export function formatTime(time: Time, isStream = false): string {
   const { seconds = 0, minutes = 0, hours = 0, days = 0 } = time;
 
-  const hasSeconds = seconds !== 0;
-  const hasMinutes = minutes !== 0;
-  const hasHours = hours !== 0;
-  const hasDays = days !== 0;
+  const hasSeconds = seconds > 0;
+  const hasMinutes = minutes > 0;
+  const hasHours = hours > 0;
+  const hasDays = days > 0;
 
   const hasAll = [hasSeconds, hasMinutes, hasHours, hasDays];
   if (hasAll.every((v) => v === false)) {
     throw new TimeError(
-      "Nothing to format - seconds, minutes, hours and days are 0"
+      "Nothing to format. Seconds, minutes, hours and days are all 0"
     );
   }
 
-  const onlySeconds = hasSeconds && !hasMinutes && !hasHours && !hasDays;
-  if (onlySeconds) return `0:${pad0(seconds)}`;
-
-  const minutesWithSeconds = hasMinutes && !hasHours && !hasDays;
-  if (minutesWithSeconds) return `${minutes}:${pad0(seconds)}`;
-
   const ss = pad0(seconds);
-  const mm = pad0(minutes);
-  let h = 0;
-  if (hasHours) h += hours;
-  if (hasDays) h += days * 24;
+  if (!hasHours && !hasDays) {
+    return hasMinutes ? `${minutes}:${ss}` : `0:${ss}`;
+  }
 
-  return `${h}:${mm}:${ss}`;
+  const mm = pad0(minutes);
+  if (hasHours && !hasDays) {
+    return `${hours}:${mm}:${ss}`;
+  }
+
+  const duration = `${days} days ${hours} hours ${minutes} minutes and ${seconds} seconds`
+  // Easter egg messages
+  const msg = `Duration is ${duration}. The hell are you planning to watch?`;
+  return isStream ? `First of all, why are you sending me livestream videos? \\
+Are you trying to break me? 🤨 Ha jockes on you, I'm unbrekable.
+\\ Also, livestream has been running for ${duration} 😤` : msg
 }
 
 const MINUTE = 60;

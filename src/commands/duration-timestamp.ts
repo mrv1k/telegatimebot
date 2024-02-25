@@ -14,7 +14,7 @@ import {
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
-const COMMANDS = ["dt", "td", "durationtimestamp"];
+const COMMANDS = ["dt", "td"];
 
 durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
@@ -78,16 +78,17 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
   );
 });
 
-// Listen for texts containing YouTube url
+// Listen for texts containing YouTube URL
 durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
+  console.log('spy')
   if (!ctx.message) return;
   const message = deunionize(ctx.message);
 
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
-  const texts: string[] = [];
 
-  texts.push(await getDurationText(parsedUrl));
+  const duration = await getDurationText(parsedUrl)
+  const texts: string[] = [duration];
 
   if (hasNoUserTimestamp(message.text)) {
     const timestamp = getUrlTimestamp(parsedUrl);
@@ -95,6 +96,10 @@ durationTimestampCommands.url(YOUTUBE_URL, async (ctx) => {
       texts.push(getTimestampText(timestamp));
     }
   }
+  
+  const text = texts.join("\n");
+  console.log(texts.length, text)
+  return templateReply(ctx, text, ctx.message.message_id);
 });
 
 // Defensive programming FTW!

@@ -47,7 +47,9 @@ durationCommands.command(COMMANDS, async (ctx) => {
     disable_web_page_preview: true,
     disable_notification: true,
   });
-  // Stub API call for the example. Telegram ignores timestamps for when page preview is disabled. No need for unicode char
+
+  // Stub API call for the example. Telegram ignores timestamps when page
+  // preview is disabled. No need for unicode char
   const stubbedDuration = `Duration: 3:33`;
   templateReply(ctx, stubbedDuration, botMessage.message_id);
 });
