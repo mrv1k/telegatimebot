@@ -16,3 +16,6 @@ export const hasNoUserTimestamp = (text = ""): boolean =>
   TELEGRAM_TIMESTAMP.test(text) === false;
 
 export const pad0 = (d: number): string => `${d <= 9 ? "0" : ""}${d}`;
+
+export const delay = (t = 1000) => new Promise(resolve => setTimeout(resolve, t));
+
