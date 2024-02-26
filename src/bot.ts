@@ -3,6 +3,7 @@ import { Telegraf } from "telegraf";
 import commands from "./commands";
 import errorHandler from "./errors";
 import http from "http";
+import { useNewReplies } from "telegraf/future";
 
 const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
 if (BOT_TOKEN === undefined) {
@@ -11,6 +12,8 @@ if (BOT_TOKEN === undefined) {
 process.title = BOT_USERNAME;
 
 const bot = new Telegraf(BOT_TOKEN);
+
+bot.use(useNewReplies());
 
 if (process.env.NODE_ENV === "debug") {
   bot.use(Telegraf.log());

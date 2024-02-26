@@ -20,7 +20,7 @@ export function parseUrl(text: string): VideoInfo {
 
   if (parsedUrl.mediaType === "playlist") {
     throw new UrlParseError(
-      "Can't fetch duration of a playlist. Please specify a video"
+      "Can't fetch duration of a playlist. Please specify a video",
     );
   }
 

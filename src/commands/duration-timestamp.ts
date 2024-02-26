@@ -3,7 +3,7 @@ import { getDurationText } from "./duration";
 
 import { getTimestampText, getUrlTimestamp } from "./timestamp";
 import { parseUrl } from "../url-parser";
-import { findFirstArg, templateReply } from "../helpers";
+import { findFirstArg } from "../helpers";
 
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
@@ -14,20 +14,22 @@ durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   const replyArg = deunionize(ctx.message.reply_to_message);
 
   let messageText: string | undefined;
-  let replyMessageId: number | undefined;
+  let message_id: number | undefined;
 
   if (textArg) {
     messageText = textArg;
-    replyMessageId = ctx.message.message_id;
+    message_id = ctx.message.message_id;
   } else if (replyArg?.text) {
     messageText = replyArg.text;
-    replyMessageId = replyArg.message_id;
+    message_id = replyArg.message_id;
   } else {
     // show an example
-    next();
+    return next();
   }
 
-  if (!messageText) return;
+  if (!messageText) {
+    return;
+  }
 
   const parsedUrl = parseUrl(messageText);
   const messages: string[] = [];
@@ -44,12 +46,13 @@ durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   } catch (error) {
     // if no timestamp - display duration error message to provide some feedback
     if (!timestamp && error instanceof Error) {
-      return templateReply(ctx, error.message, replyMessageId);
+      return ctx.reply(error.message);
     }
   }
 
   const message = messages.join("\n");
-  return templateReply(ctx, message, replyMessageId);
+  return ctx.reply(message, { reply_parameters: { message_id } });
+  // return templateReply(ctx, message, replyMessageId);
 });
 
 durationTimestampCommands.command(COMMANDS, async (ctx) => {
@@ -58,17 +61,23 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
   await ctx.reply("Get duration and convert timestamp \nFor example:");
 
   const myMotherToldMeUrl = "https://youtu.be/4dIiN57DQOI?t=4";
-  const botMessage = await templateReply(ctx, myMotherToldMeUrl);
+  const botMessage = await ctx.reply(myMotherToldMeUrl);
+  const { message_id } = botMessage;
 
   const stubbedDuration = "Duration: \u200c3:18\n";
   const stubbedTimestamp = "Timestamp: 0:04";
 
-  await templateReply(ctx, command, botMessage.message_id);
-  await templateReply(
-    ctx,
-    stubbedDuration + stubbedTimestamp,
-    botMessage.message_id
-  );
+  // await templateReply(ctx, command, botMessage.message_id);
+  await ctx.reply(command, { reply_parameters: { message_id } });
+
+  // await templateReply(
+  //   ctx,
+  //   stubbedDuration + stubbedTimestamp,
+  //   botMessage.message_id
+  // );
+  await ctx.reply(stubbedDuration + stubbedTimestamp, {
+    reply_parameters: { message_id },
+  });
 });
 
 // Listen for bot name mentions.
@@ -76,17 +85,26 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
 const { BOT_USERNAME = "telegatimebot" } = process.env;
 
 durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
-  if (!ctx.message) return;
+  if (!ctx.message) {
+    return;
+  }
   const message = deunionize(ctx.message);
 
   const replyMessage = deunionize(message.reply_to_message);
-  if (!replyMessage || !replyMessage.text) return;
+  if (!replyMessage || !replyMessage.text) {
+    return;
+  }
+  const { message_id } = replyMessage;
 
   const entities = replyMessage.entities;
-  if (!entities) return;
+  if (!entities) {
+    return;
+  }
 
   const firstUrl = entities.find((entity) => entity.type === "url");
-  if (!firstUrl) return;
+  if (!firstUrl) {
+    return;
+  }
 
   const url = replyMessage.text.slice(firstUrl.offset, firstUrl.length);
   const parsedUrl = parseUrl(url);
@@ -102,7 +120,8 @@ durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
   }
 
   const text = texts.join("\n");
-  return templateReply(ctx, text, replyMessage.message_id);
+  // return templateReply(ctx, text, replyMessage.message_id);
+  return ctx.reply(text, { reply_parameters: { message_id } });
 });
 
 export default durationTimestampCommands;

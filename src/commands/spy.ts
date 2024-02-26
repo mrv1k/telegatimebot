@@ -3,14 +3,17 @@ import { Composer, deunionize } from "telegraf";
 import { getTimestampText, getUrlTimestamp } from "./timestamp";
 import { getDurationText } from "./duration";
 import { parseUrl } from "../url-parser";
-import { hasNoUserTimestamp, templateReply, YOUTUBE_URL } from "../helpers";
+import { hasNoUserTimestamp, YOUTUBE_URL } from "../helpers";
 
 const spy = new Composer();
 
 // Spy for texts containing YouTube URLs
 spy.url(YOUTUBE_URL, async (ctx) => {
-  if (!ctx.message) return;
+  if (!ctx.message) {
+    return;
+  }
   const message = deunionize(ctx.message);
+  const { message_id } = message;
 
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
@@ -26,7 +29,7 @@ spy.url(YOUTUBE_URL, async (ctx) => {
   }
 
   const text = texts.join("\n");
-  return templateReply(ctx, text, ctx.message.message_id);
+  return ctx.reply(text, { reply_parameters: { message_id } });
 });
 
 export default spy;

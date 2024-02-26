@@ -35,7 +35,7 @@ export async function fetchDuration(id: string): Promise<DurationMaybeStream> {
     isoDuration == LIVESTREAM_DURATION
   ) {
     const derivedDuration = convertDateToDuration(
-      item.liveStreamingDetails?.actualStartTime
+      item.liveStreamingDetails?.actualStartTime,
     );
     const duration = parseISO8601Duration(derivedDuration);
     return { duration, isStream: true };

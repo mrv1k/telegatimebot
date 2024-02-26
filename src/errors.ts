@@ -2,7 +2,7 @@ import { Context } from "telegraf";
 
 export default async function errorHandler(
   error: unknown,
-  ctx: Context
+  ctx: Context,
 ): Promise<void> {
   // Follow order in which errors may occur
   if (

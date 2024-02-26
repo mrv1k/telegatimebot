@@ -1,6 +1,3 @@
-import type Context from "telegraf/typings/context";
-import type { Message } from "telegraf/typings/core/types/typegram";
-
 export const findFirstArg = (text: string): string | undefined => {
   const parts = text.split(/ +/);
   if (parts.length === 1) {
@@ -8,15 +5,6 @@ export const findFirstArg = (text: string): string | undefined => {
   }
   return parts[1];
 };
-
-// Ideally, I'd like to pass only #reply function in, but doing that loses function type.
-// Solution: pass in entire Context to avoid a headache.
-export const templateReply = (
-  ctx: Context,
-  text: string,
-  replyId?: number
-): Promise<Message.TextMessage> =>
-  ctx.reply(text, { reply_to_message_id: replyId, disable_notification: true });
 
 // Match youtube or youtu.be; tests - https://regexr.com/5sve6
 export const YOUTUBE_URL = /youtu(\.)?be/;
