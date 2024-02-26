@@ -49,9 +49,8 @@ durationCommands.command(COMMANDS, async (ctx) => {
   await ctx.reply("Gets YouTube duration \nFor example:");
 
   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
-  const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
+  const botMessage = await ctx.sendMessage(`${command} ${rickUrl}`, {
     link_preview_options: { is_disabled: true },
-    // disable_notification: true,
   });
   const { message_id } = botMessage;
 

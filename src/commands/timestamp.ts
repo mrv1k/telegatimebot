@@ -66,7 +66,7 @@ timestampCommands.command(COMMANDS, async (ctx) => {
   await ctx.reply("Converts YouTube timestamp \nFor example:");
 
   const alrightThisIsCS50Url = "https://youtu.be/YoXxevp1WRQ?t=49";
-  const botMessage = await ctx.reply(alrightThisIsCS50Url);
+  const botMessage = await ctx.sendMessage(alrightThisIsCS50Url);
   const { message_id } = botMessage;
 
   await ctx.reply(command, { reply_parameters: { message_id } });

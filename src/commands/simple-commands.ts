@@ -56,6 +56,16 @@ simpleCommands.command(["hi", "hello"], async (ctx) => {
   }
 });
 
+const six9 = [`69 (•^~^•)`, `69ඞ`, `⁶⁹`, `69 (•^~^•)`, `6️⃣9️⃣`, `69 🌝`, `🍑𓂸`]
+simpleCommands.command('69', async (ctx) => {
+  if (ctx.message.from.username === "JemboDev") {
+    ctx.sendMessage(six9[Math.floor(Math.random() * six9.length)]);
+  }
+  if (ctx.message.from.username === "mrv1k") {
+    ctx.sendMessage(`𓆏💥╾━╤デ╦︻ඩා`);
+  }
+})
+
 simpleCommands.command("yeet", async (ctx) => {
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
     ctx.sendMessage('yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet');

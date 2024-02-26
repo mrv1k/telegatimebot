@@ -5,10 +5,12 @@ import { getTimestampText, getUrlTimestamp } from "./timestamp";
 import { parseUrl } from "../url-parser";
 import { findFirstArg } from "../helpers";
 
+const { BOT_USERNAME = "telegatimebot" } = process.env;
 // dt stand for duration timestamp
 const durationTimestampCommands = new Composer();
 const COMMANDS = ["dt", "td"];
 
+// Check for url argument. eg: /dt <url>
 durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   const textArg = findFirstArg(ctx.message.text);
   const replyArg = deunionize(ctx.message.reply_to_message);
@@ -52,38 +54,30 @@ durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
 
   const message = messages.join("\n");
   return ctx.reply(message, { reply_parameters: { message_id } });
-  // return templateReply(ctx, message, replyMessageId);
 });
 
+// Fallback. Show an example. Called via next()
 durationTimestampCommands.command(COMMANDS, async (ctx) => {
   const command = ctx.message.text;
 
-  await ctx.reply("Get duration and convert timestamp \nFor example:");
+  await ctx.reply("Get duration and convert timestamp. For example:");
 
   const myMotherToldMeUrl = "https://youtu.be/4dIiN57DQOI?t=4";
-  const botMessage = await ctx.reply(myMotherToldMeUrl);
+  const botMessage = await ctx.sendMessage(myMotherToldMeUrl);
   const { message_id } = botMessage;
 
   const stubbedDuration = "Duration: \u200c3:18\n";
   const stubbedTimestamp = "Timestamp: 0:04";
 
-  // await templateReply(ctx, command, botMessage.message_id);
   await ctx.reply(command, { reply_parameters: { message_id } });
 
-  // await templateReply(
-  //   ctx,
-  //   stubbedDuration + stubbedTimestamp,
-  //   botMessage.message_id
-  // );
   await ctx.reply(stubbedDuration + stubbedTimestamp, {
     reply_parameters: { message_id },
   });
 });
 
-// Listen for bot name mentions.
+// Listen for bot name mentions. @telegatimebot is an alias /dt
 // Defensive programming FTW!
-const { BOT_USERNAME = "telegatimebot" } = process.env;
-
 durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
   if (!ctx.message) {
     return;
