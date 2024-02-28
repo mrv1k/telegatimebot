@@ -30,7 +30,9 @@ process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 // server is needed to keep replit alive
-http.createServer((_, res) => {
+const server = http.createServer((_, res) => {
   res.writeHead(200);
   res.end("Ah, ha, ha, ha, stayin' alive");
-}).listen(process.env.PORT || 8080);
+});
+
+server.listen(process.env.PORT || 8080);
