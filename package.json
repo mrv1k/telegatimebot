@@ -2,10 +2,10 @@
   "name": "telegatimebot",
   "version": "1.1.0",
   "description": "Gets YouTube duration and timestamp in Telegram",
-  "main": "src/bot.ts",
+  "main": "dist/bot.js",
   "engines": {
     "node": "20.x",
-    "npm": "10.x"
+    "npm": "9.x"
   },
   "scripts": {
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
@@ -18,7 +18,7 @@
     "build": "NODE_ENV=production tsc -p tsconfig.json",
     "start:pm2": "pm2-runtime start ecosystem.config.js --env production",
     "ship-it": "npm run clean && npm run build && npm run start:pm2",
-    "start": "npm install && npm run ship-it"
+    "start": "node dist/bot.js"
   },
   "repository": {
     "type": "git",
