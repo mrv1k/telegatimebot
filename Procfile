@@ -1,1 +1,1 @@
-web: npm start:pm2
+web: npm run pm2
