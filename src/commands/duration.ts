@@ -1,7 +1,4 @@
-import {
-  Composer,
-  deunionize,
-} from "telegraf";
+import { Composer, deunionize } from "telegraf";
 import { parseUrl } from "../url-parser";
 import { findFirstArg } from "../helpers";
 import { fetchDuration } from "../youtube-api";
@@ -24,9 +21,9 @@ durationCommands.command(COMMANDS, async (ctx, next) => {
   if (!textArg) {
     return next();
   }
-  const { message_id } = ctx.message
+  const { message_id } = ctx.message;
 
-  const duration = await getDurationText(parseUrl(textArg))
+  const duration = await getDurationText(parseUrl(textArg));
   return ctx.reply(duration, { reply_parameters: { message_id } });
 });
 

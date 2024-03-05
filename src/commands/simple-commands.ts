@@ -15,7 +15,7 @@ I see a YouTube link. I fetch duration. I also convert timestamp.\\
 May or may not take your job. Still deciding
 ` + HELP_TEXT;
 
-const MOMS_ID = process.env.SECRET_ID
+const MOMS_ID = process.env.SECRET_ID;
 
 const simpleCommands = new Composer();
 
@@ -30,21 +30,21 @@ simpleCommands.help((ctx) => {
 
 simpleCommands.command(["hi", "hello"], async (ctx) => {
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
-    return ctx.sendMessage('hi mom ❤️');
+    return ctx.sendMessage("hi mom ❤️");
   }
 
   switch (ctx.message.from.username) {
-    case 'mrv1k': {
-      return ctx.sendMessage('hi dad');
+    case "mrv1k": {
+      return ctx.sendMessage("hi dad");
     }
-    case 'JemboDev': {
-      return ctx.sendMessage('hello bröther');
+    case "JemboDev": {
+      return ctx.sendMessage("hello bröther");
     }
-    case 'LexBorisoff': {
-      return ctx.sendMessage('hello Lehman');
+    case "LexBorisoff": {
+      return ctx.sendMessage("hello Lehman");
     }
-    case 'gelotheprodigy': {
-      return ctx.sendMessage('olleh 🤨');
+    case "gelotheprodigy": {
+      return ctx.sendMessage("olleh 🤨");
     }
 
     default: {
@@ -56,65 +56,67 @@ simpleCommands.command(["hi", "hello"], async (ctx) => {
   }
 });
 
-const six9 = [`69 (•^~^•)`, `69ඞ`, `⁶⁹`, `69 (•^~^•)`, `6️⃣9️⃣`, `69 🌝`, `🍑𓂸`]
-simpleCommands.command('69', async (ctx) => {
+const six9 = [`69 (•^~^•)`, `69ඞ`, `⁶⁹`, `69 (•^~^•)`, `6️⃣9️⃣`, `69 🌝`, `🍑𓂸`];
+simpleCommands.command("69", async (ctx) => {
   if (ctx.message.from.username === "JemboDev") {
     ctx.sendMessage(six9[Math.floor(Math.random() * six9.length)]);
   }
   if (ctx.message.from.username === "mrv1k") {
     ctx.sendMessage(`𓆏💥╾━╤デ╦︻ඩා`);
   }
-})
+});
 
 simpleCommands.command("yeet", async (ctx) => {
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
-    ctx.sendMessage('yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet');
-    await delay(2000)
+    ctx.sendMessage(
+      "yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet",
+    );
+    await delay(2000);
     return ctx.leaveChat();
   }
-})
+});
 
 simpleCommands.command(["bye", "cya"], async (ctx) => {
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
-    ctx.sendMessage('bye mom 😘');
-    await delay(2000)
+    ctx.sendMessage("bye mom 😘");
+    await delay(2000);
     return ctx.leaveChat();
   }
 
   switch (ctx.message.from.username) {
-    case 'mrv1k': {
+    case "mrv1k": {
       ctx.sendMessage("please dad!");
-      await delay(2000)
+      await delay(2000);
       ctx.sendMessage("i don't want to go :(");
-      await delay(2000)
-      ctx.sendMessage('bye dad 🫡');
-      await delay(2000)
+      await delay(2000);
+      ctx.sendMessage("bye dad 🫡");
+      await delay(2000);
       return ctx.leaveChat();
     }
-    case 'JemboDev': {
+    case "JemboDev": {
       ctx.sendMessage("Adieu");
-      await delay()
+      await delay();
       ctx.sendMessage("goodbye");
-      await delay()
+      await delay();
       ctx.sendMessage("auf Wiederseh'n");
       return ctx.leaveChat();
     }
-    case 'LexBorisoff': {
-      ctx.sendMessage('What are you doing Yakutza?');
-      await delay()
-      return ctx.sendMessage('☠️');
+    case "LexBorisoff": {
+      ctx.sendMessage("What are you doing Yakutza?");
+      await delay();
+      return ctx.sendMessage("☠️");
     }
-    case 'gelotheprodigy': {
-      await delay(6969)
-      return ctx.reply('no 🤨');
+    case "gelotheprodigy": {
+      await delay(6969);
+      return ctx.reply("no 🤨");
     }
-    case 'mom': {
+    case "mom": {
       ctx.sendMessage("please dad!");
-      await delay(2000)
+      await delay(2000);
       ctx.sendMessage("i don't want to go :(");
-      await delay(2000)
-      ctx.sendMessage('bye dad 🫡');
-      await delay(2000)
+      await delay(2000);
+      ctx.sendMessage("bye dad 🫡");
+      await delay(2000);
       return ctx.leaveChat();
     }
     default: {

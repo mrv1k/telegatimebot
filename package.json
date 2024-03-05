@@ -15,10 +15,11 @@
     "dev": "NODE_ENV=development npm run ts-node",
     "debug": "NODE_ENV=debug npm run ts-node",
     "dev-with-prod-env": "NODE_ENV=production npm run ts-node",
+    "pre:build": "npm run clean",
     "build": "NODE_ENV=production tsc -p tsconfig.json",
-    "start:pm2": "pm2-runtime start ecosystem.config.js --env production",
-    "ship-it": "npm run clean && npm run build && npm run start:pm2",
-    "start": "npm install && npm run ship-it"
+    "pm2": "pm2-runtime start ecosystem.config.js --env production",
+    "start:pm2": "npm run build && npm run pm2",
+    "start": "npm run build && node dist/bot.js"
   },
   "repository": {
     "type": "git",

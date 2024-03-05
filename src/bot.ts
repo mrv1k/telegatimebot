@@ -5,6 +5,14 @@ import errorHandler from "./errors";
 import http from "http";
 import { useNewReplies } from "telegraf/future";
 
+// server is needed to keep bot alive
+http
+  .createServer((_, res) => {
+    res.writeHead(200);
+    res.end("Ah, ha, ha, ha, stayin' alive");
+  })
+  .listen(process.env.PORT || 8080);
+
 const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
 if (BOT_TOKEN === undefined) {
   throw new TypeError("BOT_TOKEN must be provided");
@@ -28,11 +36,3 @@ console.log("I am ALIVE!");
 // Enable graceful stop & kill
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
-
-// server is needed to keep bot alive
-const server = http.createServer((_, res) => {
-  res.writeHead(200);
-  res.end("Ah, ha, ha, ha, stayin' alive");
-});
-
-server.listen(process.env.PORT || 8080);
