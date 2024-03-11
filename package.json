@@ -12,7 +12,7 @@
     "prettier": "prettier src/",
     "clean": "rm -rf dist",
     "ts-node": "ts-node --files ./src/bot.ts",
-    "dev": "NODE_ENV=development npm run ts-node",
+    "dev": " NODE_ENV=development npm run ts-node",
     "debug": "NODE_ENV=debug npm run ts-node",
     "dev-with-prod-env": "NODE_ENV=production npm run ts-node",
     "pre:build": "npm run clean",
@@ -44,6 +44,7 @@
     "telegraf": "^4.16.1"
   },
   "devDependencies": {
+    "@tsconfig/node20": "^20.1.2",
     "@types/node": "^20.11.20",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",

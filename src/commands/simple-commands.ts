@@ -77,11 +77,12 @@ simpleCommands.command("yeet", async (ctx) => {
 });
 
 simpleCommands.command(["bye", "cya"], async (ctx) => {
-  if (ctx.chat.type === 'private') {
-    ctx.sendMessage("Nothing can make me leave this amazing conversation with you ;)");
-    return
+  if (ctx.chat.type === "private") {
+    ctx.sendMessage(
+      "Nothing can make me leave this amazing conversation with you ;)",
+    );
+    return;
   }
-  
 
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
     ctx.sendMessage("bye mom 😘");
