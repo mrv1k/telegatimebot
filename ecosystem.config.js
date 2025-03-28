@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+// PM2 config https://pm2.keymetrics.io/docs/usage/application-declaration/ 
 module.exports = {
   apps: [{
     name: 'telegatimebot',
