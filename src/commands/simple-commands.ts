@@ -66,16 +66,6 @@ simpleCommands.command("69", async (ctx) => {
   }
 });
 
-simpleCommands.command("yeet", async (ctx) => {
-  if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
-    ctx.sendMessage(
-      "yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet",
-    );
-    await delay(2000);
-    return ctx.leaveChat();
-  }
-});
-
 simpleCommands.command(["bye", "cya"], async (ctx) => {
   if (ctx.chat.type === "private") {
     ctx.sendMessage(
@@ -116,15 +106,6 @@ simpleCommands.command(["bye", "cya"], async (ctx) => {
     case "gelotheprodigy": {
       await delay(6969);
       return ctx.reply("no 🤨");
-    }
-    case "mom": {
-      ctx.sendMessage("please dad!");
-      await delay(2000);
-      ctx.sendMessage("i don't want to go :(");
-      await delay(2000);
-      ctx.sendMessage("bye dad 🫡");
-      await delay(2000);
-      return ctx.leaveChat();
     }
     default: {
       if (ctx.message.chat.type === "group") {

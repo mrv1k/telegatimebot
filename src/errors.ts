@@ -4,6 +4,11 @@ export default async function errorHandler(
   error: unknown,
   ctx: Context,
 ): Promise<void> {
+  if (error instanceof NoopError) {
+    // do nothing
+    return;
+  }
+
   // Follow order in which errors may occur
   if (
     error instanceof YouTubeAPIError ||
@@ -20,7 +25,7 @@ export default async function errorHandler(
   ctx.reply("Ouch. Something inside me just broke");
   process.kill(process.pid, "SIGINT");
 
-  // ⚠️ Always rethrow TimeoutError!
+  // WARNING: Always rethrow TimeoutError!
   // set exit code to emulate `warn-with-error-code` behavior of
   // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
   // to prevent a clean exit despite an error being thrown
@@ -57,4 +62,14 @@ class UrlParseError extends Error {
   }
 }
 
-export { YouTubeAPIError, TimeError, UrlParseError };
+class NoopError extends Error {
+  constructor(message: string, stack?: string) {
+    super(message);
+    this.name = "NoopError";
+    if (stack) {
+      this.stack = stack;
+    }
+  }
+}
+
+export { YouTubeAPIError, TimeError, UrlParseError, NoopError };
