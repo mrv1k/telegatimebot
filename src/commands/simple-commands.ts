@@ -30,21 +30,21 @@ simpleCommands.help((ctx) => {
 
 simpleCommands.command(["hi", "hello"], async (ctx) => {
   if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
-    return ctx.sendMessage("hi mom ❤️");
+    return ctx.sendMessage(`hi mom ❤️`);
   }
 
   switch (ctx.message.from.username) {
     case "mrv1k": {
-      return ctx.sendMessage("hi dad");
+      return ctx.sendMessage(`hi dad 🥸`);
     }
     case "JemboDev": {
-      return ctx.sendMessage("hello bröther");
+      return ctx.sendMessage(`hello bröther`);
     }
     case "LexBorisoff": {
       return ctx.sendMessage("hello Lehman");
     }
     case "gelotheprodigy": {
-      return ctx.sendMessage("olleh 🤨");
+      return ctx.sendMessage(`gelo 🤨`);
     }
 
     default: {

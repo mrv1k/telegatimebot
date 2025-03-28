@@ -9,17 +9,17 @@ const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
 if (BOT_TOKEN === undefined) {
   throw new TypeError("BOT_TOKEN must be provided");
 }
-
 if (process.env.NODE_ENV === undefined) {
   throw new TypeError("NODE_ENV must be specified");
 }
-
 process.title = BOT_USERNAME;
 
 const bot = new Telegraf(BOT_TOKEN);
+
 bot.use(useNewReplies());
 bot.catch(errorHandler);
 bot.use(commands);
+
 // Enable graceful stop & kill
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
@@ -28,9 +28,17 @@ if (process.env.NODE_ENV === "debug") {
   bot.use(Telegraf.log());
 }
 
-const go = async () => {
+function stayinAlive() {
+  const port = Number(process.env.PORT) || 8080
+  console.log(`I'm stayin ALIVE in ${process.env.NODE_ENV} on port ${port}`);
+}
+
+async function startProd() {
   if (process.env.WEBHOOK_DOMAIN === undefined) {
     throw new TypeError("NODE_ENV must be specified");
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('This is intented for production, getting it working locally needs webhook setup')
   }
 
   const path = `/telegraf/${bot.secretPathComponent()}`;
@@ -53,12 +61,14 @@ https://t.me/telegatimebot
 source: https://github.com/mrv1k/telegatimebot
 `);
     })
-    .listen(Number(process.env.PORT) || 8080, () => {
-      console.log("I am ALIVE! in ", [
-        process.env.NODE_ENV,
-        Number(process.env.PORT) || 8080,
-      ]);
-    });
+    .listen(Number(process.env.PORT) || 8080, stayinAlive);
 };
 
-go();
+
+if (process.env.NODE_ENV === 'production') {
+  startProd();
+} else {
+  // development, debug or others
+  bot.launch();
+  stayinAlive()
+}
