@@ -1,0 +1,31 @@
+{
+  "name": "telegatimebot",
+  "main": "src/index.js",
+  "compatibility_date": "2025-03-27",
+  "workers_dev": false,
+  "route": {
+    "pattern": "example.org/*",
+    "zone_name": "example.org"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "<MY_NAMESPACE>",
+      "id": "<KV_ID>"
+    }
+  ],
+  "env": {
+    "staging": {
+      "name": "telegatimebot-staging",
+      "route": {
+        "pattern": "staging.example.org/*",
+        "zone_name": "example.org"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "<MY_NAMESPACE>",
+          "id": "<STAGING_KV_ID>"
+        }
+      ]
+    }
+  }
+}

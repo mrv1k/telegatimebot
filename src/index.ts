@@ -3,7 +3,7 @@ import { Telegraf } from "telegraf";
 import commands from "./commands";
 import errorHandler from "./errors";
 import { useNewReplies } from "telegraf/future";
-import express from "express";
+import express from 'express';
 
 const { BOT_TOKEN, BOT_USERNAME = "telegatimebot" } = process.env;
 if (BOT_TOKEN === undefined) {
