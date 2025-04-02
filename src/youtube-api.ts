@@ -1,4 +1,3 @@
-import { youtube } from "@googleapis/youtube";
 import { Duration, parse as parseISO8601Duration } from "iso8601-duration";
 import { YouTubeAPIError } from "./errors";
 
@@ -6,16 +5,6 @@ export type DurationMaybeStream = { duration: Duration; isStream?: boolean };
 
 const part = ["contentDetails", "liveStreamingDetails"];
 const LIVESTREAM_DURATION = "P0D";
-
-const { YOUTUBE_API_KEY } = process.env;
-if (YOUTUBE_API_KEY === undefined) {
-  throw new TypeError("YOUTUBE_API_KEY must be provided!");
-}
-
-const client = youtube({
-  version: "v3",
-  auth: process.env.YOUTUBE_API_KEY,
-});
 
 export async function fetchDuration(id: string): Promise<DurationMaybeStream> {
   const {

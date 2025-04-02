@@ -70,7 +70,10 @@ typings/
 
 # dotenv environment variables file
 .env
-.env.test
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -130,3 +133,8 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Cloud Flare deploy
+.dev.vars
+.wrangler/
+
