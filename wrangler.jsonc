@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "telegatimebot",
-  "main": "src/index.ts",
+  "main": "src/cf-index.ts",
   "compatibility_date": "2025-03-21",
   "compatibility_flags": ["nodejs_compat_v2"],
   "observability": {
