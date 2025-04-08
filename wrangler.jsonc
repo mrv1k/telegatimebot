@@ -12,12 +12,6 @@
     "pattern": "example.org/*",
     "zone_name": "example.org",
   },
-  "kv_namespaces": [
-    {
-      "binding": "<MY_NAMESPACE>",
-      "id": "<KV_ID>",
-    },
-  ],
   "env": {
     "staging": {
       "name": "telegatimebot-staging",
@@ -25,12 +19,6 @@
         "pattern": "staging.example.org/*",
         "zone_name": "example.org",
       },
-      "kv_namespaces": [
-        {
-          "binding": "<MY_NAMESPACE>",
-          "id": "<STAGING_KV_ID>",
-        },
-      ],
     },
   },
 

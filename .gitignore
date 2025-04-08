@@ -137,4 +137,4 @@ Temporary Items
 # Cloud Flare deploy
 .dev.vars
 .wrangler/
-
+worker-configuration.d.ts

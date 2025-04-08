@@ -1,6 +1,7 @@
 import commands from "./commands";
 import errorHandler from "./errors";
 import { Telegraf } from "telegraf";
+import { parseEnv } from "./envs";
 import { useNewReplies } from "telegraf/future";
 import { youtube } from "@googleapis/youtube";
 
@@ -38,7 +39,6 @@ function stayinAlive(env: Env) {
 
 async function startProd(env: Env) {
   const youtube = configureYouTube(env);
-
   const bot = configureBot(env, youtube);
   // const path = `/telegraf/${bot.secretPathComponent()}`;
   // const telegaHook = await bot.createWebhook({
@@ -51,14 +51,21 @@ async function startProd(env: Env) {
   return;
 }
 
+function startDev(env: Env) {
+  const youtube = configureYouTube(env);
+  const bot = configureBot(env, youtube);
+  bot.launch();
+}
+
 async function toProdOrNotToProd(thatIsTheQuestion: boolean = true) {
+  const env = parseEnv({});
   if (thatIsTheQuestion) {
-    await startProd();
+    await startProd(env);
   } else {
     // development, debug or others
-    bot.launch();
-    stayinAlive();
+    startDev(env);
   }
+  // stayinAlive();
 }
 
 toProdOrNotToProd(false);

@@ -1,6 +1,9 @@
-import "dotenv/config";
+import path from "node:path";
+import { config } from "dotenv";
 
-export function parseEnv(data: unknown) {
+export function parseEnv(data: unknown): Env {
+  config({ path: path.resolve(process.cwd(), ".env") });
+
   const {
     BOT_TOKEN,
     BOT_USERNAME = "telegatimebot",
@@ -20,6 +23,14 @@ export function parseEnv(data: unknown) {
   if (process.env.NODE_ENV === undefined) {
     throw new TypeError("NODE_ENV must be specified");
   }
+
+  return {
+    BOT_TOKEN: "a",
+    BOT_USERNAME,
+    YOUTUBE_API_KEY: "b",
+    WEBHOOK_DOMAIN: "stub",
+    SECRET_ID: "stub",
+  };
 
   // needed for prod
   // if (process.env.WEBHOOK_DOMAIN === undefined) {
