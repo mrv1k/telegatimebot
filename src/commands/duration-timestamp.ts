@@ -1,13 +1,13 @@
 import { Composer, deunionize } from "telegraf";
-import { getDurationText } from "./duration";
-
-import { getTimestampText, getUrlTimestamp } from "./timestamp";
-import { parseUrl } from "../url-parser";
+import type { ContextWithEnv } from "../envs";
 import { findFirstArg } from "../helpers";
+import { parseUrl } from "../url-parser";
+import { getDurationText } from "./duration";
+import { getTimestampText, getUrlTimestamp } from "./timestamp";
 
-const { BOT_USERNAME = "telegatimebot" } = process.env;
 // dt stand for duration timestamp
-const durationTimestampCommands = new Composer();
+const durationTimestampCommands = new Composer<ContextWithEnv>();
+
 const COMMANDS = ["dt", "td"];
 
 // Check for url argument. eg: /dt <url>
@@ -39,7 +39,7 @@ durationTimestampCommands.command(COMMANDS, async (ctx, next) => {
   const timestamp = getUrlTimestamp(parsedUrl);
 
   try {
-    const duration = await getDurationText(parsedUrl);
+    const duration = await getDurationText(ctx.env, parsedUrl);
     messages.push(duration);
 
     if (timestamp) {
@@ -76,9 +76,10 @@ durationTimestampCommands.command(COMMANDS, async (ctx) => {
   });
 });
 
+// const { BOT_USERNAME = "telegatimebot" } = process.env;
 // Listen for bot name mentions. @telegatimebot is an alias /dt
 // Defensive programming FTW!
-durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
+durationTimestampCommands.mention("telegatimebot", async (ctx) => {
   if (!ctx.message) {
     return;
   }
@@ -105,7 +106,7 @@ durationTimestampCommands.mention(BOT_USERNAME, async (ctx) => {
   const texts: string[] = [];
 
   // Always include duration
-  texts.push(await getDurationText(parsedUrl));
+  texts.push(await getDurationText(ctx.env, parsedUrl));
 
   // Explicit command call, don't check settings or user provided timestamp
   const timestamp = getUrlTimestamp(parsedUrl);

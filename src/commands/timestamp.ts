@@ -1,12 +1,12 @@
-import { Composer, deunionize } from "telegraf";
-import { findFirstArg } from "../helpers";
-import { UrlParseError } from "../errors";
-import { parseUrl } from "../url-parser";
-import { formatTime, secondsToDuration } from "../time";
-
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
+import { Composer, deunionize } from "telegraf";
+import type { ContextWithEnv } from "../envs";
+import { UrlParseError } from "../errors";
+import { findFirstArg } from "../helpers";
+import { formatTime, secondsToDuration } from "../time";
+import { parseUrl } from "../url-parser";
 
-const timestampCommands = new Composer();
+const timestampCommands = new Composer<ContextWithEnv>();
 const COMMANDS = ["t", "timestamp"];
 
 export function getUrlTimestamp(parsedUrl: VideoInfo): number | undefined {

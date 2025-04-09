@@ -1,19 +1,22 @@
-import commands from "./commands";
-import errorHandler from "./errors";
 import { Telegraf } from "telegraf";
-import { parseEnv } from "./envs";
 import { useNewReplies } from "telegraf/future";
-import { youtube } from "@googleapis/youtube";
+import commands from "./commands";
+import type { ContextWithEnv } from "./envs";
+import { parseEnv } from "./envs";
+import errorHandler from "./errors";
 
-import type { youtube_v3 } from "@googleapis/youtube";
+function configureBot(env: Env) {
+  const bot = new Telegraf<ContextWithEnv>(env.BOT_TOKEN);
 
-type Youtube = youtube_v3.Youtube;
-
-function configureBot(env: Env, youtubeClient: Youtube) {
-  const bot = new Telegraf(env.BOT_TOKEN);
-
+  // built in middleware
   bot.use(useNewReplies());
+
+  // my middleware
   bot.catch(errorHandler);
+  bot.use((ctx, next) => {
+    ctx.env = env;
+    next();
+  });
   bot.use(commands);
 
   // Enable graceful stop & kill
@@ -26,20 +29,12 @@ function configureBot(env: Env, youtubeClient: Youtube) {
   return bot;
 }
 
-function configureYouTube(env: Env) {
-  return youtube({
-    version: "v3",
-    auth: env.YOUTUBE_API_KEY,
-  });
-}
-
 function stayinAlive(env: Env) {
   console.log(`I'm stayin ALIVE in ${env} on port ${env}`);
 }
 
 async function startProd(env: Env) {
-  const youtube = configureYouTube(env);
-  const bot = configureBot(env, youtube);
+  const bot = configureBot(env);
   // const path = `/telegraf/${bot.secretPathComponent()}`;
   // const telegaHook = await bot.createWebhook({
   //   domain: env.WEBHOOK_DOMAIN,
@@ -52,13 +47,13 @@ async function startProd(env: Env) {
 }
 
 function startDev(env: Env) {
-  const youtube = configureYouTube(env);
-  const bot = configureBot(env, youtube);
+  const bot = configureBot(env);
   bot.launch();
 }
 
 async function toProdOrNotToProd(thatIsTheQuestion: boolean = true) {
-  const env = parseEnv({});
+  const env = parseEnv();
+
   if (thatIsTheQuestion) {
     await startProd(env);
   } else {

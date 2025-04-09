@@ -1,11 +1,11 @@
 import { Composer, deunionize } from "telegraf";
-
-import { getTimestampText, getUrlTimestamp } from "./timestamp";
-import { getDurationText } from "./duration";
-import { parseUrl } from "../url-parser";
+import type { ContextWithEnv } from "../envs";
 import { hasNoUserTimestamp, YOUTUBE_URL } from "../helpers";
+import { parseUrl } from "../url-parser";
+import { getDurationText } from "./duration";
+import { getTimestampText, getUrlTimestamp } from "./timestamp";
 
-const spy = new Composer();
+const spy = new Composer<ContextWithEnv>();
 
 // Spy for texts containing YouTube URLs
 spy.url(YOUTUBE_URL, async (ctx) => {
@@ -18,7 +18,7 @@ spy.url(YOUTUBE_URL, async (ctx) => {
   const input = ctx.match.input;
   const parsedUrl = parseUrl(input);
 
-  const duration = await getDurationText(parsedUrl);
+  const duration = await getDurationText(ctx.env, parsedUrl);
   const texts: string[] = [duration];
 
   if (hasNoUserTimestamp(message.text)) {

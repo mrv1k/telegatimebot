@@ -1,4 +1,5 @@
 import { Composer } from "telegraf";
+import type { ContextWithEnv } from "../envs";
 import { delay } from "../helpers";
 
 // Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
@@ -17,7 +18,7 @@ May or may not take your job. Still deciding
 
 const MOMS_ID = process.env.SECRET_ID;
 
-const simpleCommands = new Composer();
+const simpleCommands = new Composer<ContextWithEnv>();
 
 // Every chat with bot starts from /start
 simpleCommands.start((ctx) => {

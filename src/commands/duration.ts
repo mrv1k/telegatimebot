@@ -1,16 +1,19 @@
-import { Composer, deunionize } from "telegraf";
-import { parseUrl } from "../url-parser";
-import { findFirstArg } from "../helpers";
-import { fetchDuration } from "../youtube-api";
-import { formatTime } from "../time";
-
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
+import { Composer, deunionize } from "telegraf";
+import type { ContextWithEnv } from "../envs";
+import { findFirstArg } from "../helpers";
+import { formatTime } from "../time";
+import { parseUrl } from "../url-parser";
+import { fetchDuration } from "../youtube-api";
 
-const durationCommands = new Composer();
+const durationCommands = new Composer<ContextWithEnv>();
 const COMMANDS = ["d", "duration"];
 
-export async function getDurationText(parsedUrl: VideoInfo): Promise<string> {
-  const duration = await fetchDuration(parsedUrl.id);
+export async function getDurationText(
+  env: Env,
+  parsedUrl: VideoInfo,
+): Promise<string> {
+  const duration = await fetchDuration(env, parsedUrl.id);
   // Use \u200c (ZERO WIDTH NON-JOINER) to prevent Telegram from making it a timestamp
   return `Duration: \u200c${formatTime(duration)}`;
 }
@@ -23,7 +26,7 @@ durationCommands.command(COMMANDS, async (ctx, next) => {
   }
   const { message_id } = ctx.message;
 
-  const duration = await getDurationText(parseUrl(textArg));
+  const duration = await getDurationText(ctx.env, parseUrl(textArg));
   return ctx.reply(duration, { reply_parameters: { message_id } });
 });
 
@@ -35,7 +38,7 @@ durationCommands.command(COMMANDS, async (ctx, next) => {
   }
   const { message_id } = replyArg;
 
-  const duration = await getDurationText(parseUrl(replyArg.text));
+  const duration = await getDurationText(ctx.env, parseUrl(replyArg.text));
   return ctx.reply(duration, { reply_parameters: { message_id } });
 });
 

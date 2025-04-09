@@ -1,12 +1,25 @@
 import { Duration, parse as parseISO8601Duration } from "iso8601-duration";
 import { YouTubeAPIError } from "./errors";
+import { youtube } from "@googleapis/youtube";
 
 export type DurationMaybeStream = { duration: Duration; isStream?: boolean };
 
 const part = ["contentDetails", "liveStreamingDetails"];
 const LIVESTREAM_DURATION = "P0D";
 
-export async function fetchDuration(id: string): Promise<DurationMaybeStream> {
+function configureYouTube(env: Env) {
+  return youtube({
+    version: "v3",
+    auth: env.YOUTUBE_API_KEY,
+  });
+}
+
+export async function fetchDuration(
+  env: Env,
+  id: string,
+): Promise<DurationMaybeStream> {
+  const client = configureYouTube(env);
+
   const {
     data: { items },
   } = await client.videos.list({ part, id: [id] });
