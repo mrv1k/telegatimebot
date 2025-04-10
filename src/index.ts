@@ -5,7 +5,7 @@ import type { ContextWithEnv } from "./envs";
 import { parseDevEnv } from "./envs";
 import errorHandler from "./errors";
 
-function configureBot(env: Env): Telegraf<ContextWithEnv> {
+export function configureBot(env: Env): Telegraf<ContextWithEnv> {
   const bot = new Telegraf<ContextWithEnv>(env.BOT_TOKEN);
   bot.use(useNewReplies());
   bot.catch(errorHandler);
@@ -21,20 +21,7 @@ function configureBot(env: Env): Telegraf<ContextWithEnv> {
   return bot;
 }
 
-export function startBotInProd(env: Env): Telegraf<ContextWithEnv> {
-  const bot = configureBot(env);
-  // const path = `/telegraf/${bot.secretPathComponent()}`;
-  // const telegaHook = await bot.createWebhook({
-  //   domain: env.WEBHOOK_DOMAIN,
-  //   path,
-  // });
-
-  // .get(path, telegaHook)
-  // .post(path, telegaHook)
-  return bot;
-}
-
-function startBotInDev() {
+async function startBotInDev() {
   const env = parseDevEnv();
   const bot = configureBot(env);
 

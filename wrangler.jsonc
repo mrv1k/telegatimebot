@@ -8,19 +8,19 @@
     "enabled": true,
   },
   "workers_dev": false,
-  "route": {
-    "pattern": "example.org/*",
-    "zone_name": "example.org",
-  },
-  "env": {
-    "staging": {
-      "name": "telegatimebot-staging",
-      "route": {
-        "pattern": "staging.example.org/*",
-        "zone_name": "example.org",
-      },
-    },
-  },
+  // "route": {
+  //   "pattern": "example.org/*",
+  //   "zone_name": "example.org",
+  // },
+  // "env": {
+  //   "staging": {
+  //     "name": "telegatimebot-staging",
+  //     "route": {
+  //       "pattern": "staging.example.org/*",
+  //       "zone_name": "example.org",
+  //     },
+  //   },
+  // },
 
   /**
    * Smart Placement
