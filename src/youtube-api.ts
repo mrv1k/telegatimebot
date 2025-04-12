@@ -19,10 +19,12 @@ export async function fetchDuration(
   id: string,
 ): Promise<DurationMaybeStream> {
   const client = configureYouTube(env);
+  const videos = client.videos;
+  console.log("ut", env, client.context, videos);
 
   const {
     data: { items },
-  } = await client.videos.list({ part, id: [id] });
+  } = await videos.list({ part, id: [id] });
 
   if (items === undefined || items.length === 0) {
     throw new YouTubeAPIError("Video is private or doesn't exist");

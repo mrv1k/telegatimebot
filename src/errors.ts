@@ -1,4 +1,4 @@
-import { Context } from "telegraf";
+import { Bot } from "grammy";
 
 export default async function errorHandler(
   error: unknown,
