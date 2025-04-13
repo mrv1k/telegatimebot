@@ -1,5 +1,5 @@
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
-import { Composer, deunionize } from "telegraf";
+import { Composer } from "grammy";
 import type { ContextWithEnv } from "../envs";
 import { findFirstArg } from "../helpers";
 import { formatTime } from "../time";
@@ -20,45 +20,52 @@ export async function getDurationText(
 
 // Check for url argument. eg: /duration <url>
 durationCommands.command(COMMANDS, async (ctx, next) => {
+  if (!ctx.message) {
+    return;
+  }
+
   const textArg = findFirstArg(ctx.message.text);
   if (!textArg) {
     return next();
   }
+
   const { message_id } = ctx.message;
 
+  debugger;
   const duration = await getDurationText(ctx.env, parseUrl(textArg));
+  debugger;
   return ctx.reply(duration, { reply_parameters: { message_id } });
 });
 
 // Check for reply. eg: /duration <reply_message>
-durationCommands.command(COMMANDS, async (ctx, next) => {
-  const replyArg = deunionize(ctx.message.reply_to_message);
-  if (!replyArg || !replyArg.text) {
-    return next();
-  }
-  const { message_id } = replyArg;
-
-  const duration = await getDurationText(ctx.env, parseUrl(replyArg.text));
-  return ctx.reply(duration, { reply_parameters: { message_id } });
-});
-
-// Fallback. Show an example. Called via next()
-durationCommands.command(COMMANDS, async (ctx) => {
-  const command = ctx.message.text;
-
-  await ctx.reply("Gets YouTube duration \nFor example:");
-
-  const rickUrl = "https://youtu.be/oHg5SJYRHA0";
-  const botMessage = await ctx.sendMessage(`${command} ${rickUrl}`, {
-    link_preview_options: { is_disabled: true },
-  });
-  const { message_id } = botMessage;
-
-  // Stub API call for the example. Telegram ignores timestamps when page
-  // preview is disabled. No need for unicode char
-  const stubbedDuration = `Duration: 3:33`;
-
-  return ctx.reply(stubbedDuration, { reply_parameters: { message_id } });
-});
+// durationCommands.command(COMMANDS, async (ctx, next) => {
+//   const replyArg = deunionize(ctx.message.reply_to_message);
+//   if (!replyArg || !replyArg.text) {
+//     return next();
+//   }
+//   const { message_id } = replyArg;
+//
+//   const duration = await getDurationText(ctx.env, parseUrl(replyArg.text));
+//   return ctx.reply(duration, { reply_parameters: { message_id } });
+// });
+//
+// // Fallback. Show an example. Called via next()
+// durationCommands.command(COMMANDS, async (ctx) => {
+//   const command = ctx.message.text;
+//
+//   await ctx.reply("Gets YouTube duration \nFor example:");
+//
+//   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
+//   const botMessage = await ctx.sendMessage(`${command} ${rickUrl}`, {
+//     link_preview_options: { is_disabled: true },
+//   });
+//   const { message_id } = botMessage;
+//
+//   // Stub API call for the example. Telegram ignores timestamps when page
+//   // preview is disabled. No need for unicode char
+//   const stubbedDuration = `Duration: 3:33`;
+//
+//   return ctx.reply(stubbedDuration, { reply_parameters: { message_id } });
+// });
 
 export default durationCommands;

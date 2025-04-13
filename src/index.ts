@@ -1,4 +1,4 @@
-import { Bot, Composer } from "grammy";
+import { Bot } from "grammy";
 // import durationCommands from "./commands/duration";
 // import durationTimestampCommands from "./commands/duration-timestamp";
 // import spy from "./commands/spy";
@@ -20,7 +20,6 @@ export function configureBot(env: Env) {
       can_join_groups: true,
       can_read_all_group_messages: true,
       supports_inline_queries: false,
-      // @ts-ignore
       can_connect_to_business: false,
       has_main_web_app: false,
     },

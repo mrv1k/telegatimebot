@@ -8,6 +8,9 @@ const part = ["contentDetails", "liveStreamingDetails"];
 const LIVESTREAM_DURATION = "P0D";
 
 function configureYouTube(env: Env) {
+  if (typeof env.YOUTUBE_API_KEY !== "string") {
+    throw new YouTubeAPIError("Missing YoutTube API Key");
+  }
   return youtube({
     version: "v3",
     auth: env.YOUTUBE_API_KEY,

@@ -22,11 +22,11 @@ export function registerSimpleCommands(bot: BotWithContext): BotWithContext {
 
   // Every chat with bot starts from /start
   simpleCommands.command("start", (ctx) => {
-    ctx.reply(START_TEXT, { parse_mode: "MarkdownV2" });
+    ctx.reply("start", { parse_mode: "MarkdownV2" });
   });
 
   simpleCommands.command("help", (ctx) => {
-    ctx.reply(HELP_TEXT, { parse_mode: "MarkdownV2" });
+    ctx.reply("test", { parse_mode: "MarkdownV2" });
   });
 
   simpleCommands.command(["hi", "hello"], async (ctx) => {
