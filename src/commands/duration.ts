@@ -1,12 +1,10 @@
 import type { VideoInfo } from "js-video-url-parser/lib/urlParser";
-import { Composer } from "grammy";
-import type { ContextWithEnv } from "../envs";
+import { TTBComposer } from "..";
 import { findFirstArg } from "../helpers";
 import { formatTime } from "../time";
 import { parseUrl } from "../url-parser";
 import { fetchDuration } from "../youtube-api";
 
-const durationCommands = new Composer<ContextWithEnv>();
 const COMMANDS = ["d", "duration"];
 
 export async function getDurationText(
@@ -18,54 +16,58 @@ export async function getDurationText(
   return `Duration: \u200c${formatTime(duration)}`;
 }
 
-// Check for url argument. eg: /duration <url>
-durationCommands.command(COMMANDS, async (ctx, next) => {
-  if (!ctx.message) {
-    return;
-  }
+export function useDurationCommands(durationCommands: TTBComposer) {
+  // Check for url argument. eg: /duration <url>
+  durationCommands.command(COMMANDS, async (ctx, next) => {
+    if (!ctx.message) {
+      return next();
+    }
 
-  const textArg = findFirstArg(ctx.message.text);
-  if (!textArg) {
-    return next();
-  }
+    const textArg = findFirstArg(ctx.message.text);
+    if (!textArg) {
+      return next();
+    }
+    const { message_id } = ctx.message;
 
-  const { message_id } = ctx.message;
+    const duration = await getDurationText(ctx.env, parseUrl(textArg));
+    return ctx.reply(duration, { reply_parameters: { message_id } });
+  });
 
-  debugger;
-  const duration = await getDurationText(ctx.env, parseUrl(textArg));
-  debugger;
-  return ctx.reply(duration, { reply_parameters: { message_id } });
-});
+  // Check for reply. eg: /duration <reply_message>
+  durationCommands.command(COMMANDS, async (ctx, next) => {
+    if (!ctx.message) {
+      return next();
+    }
 
-// Check for reply. eg: /duration <reply_message>
-// durationCommands.command(COMMANDS, async (ctx, next) => {
-//   const replyArg = deunionize(ctx.message.reply_to_message);
-//   if (!replyArg || !replyArg.text) {
-//     return next();
-//   }
-//   const { message_id } = replyArg;
-//
-//   const duration = await getDurationText(ctx.env, parseUrl(replyArg.text));
-//   return ctx.reply(duration, { reply_parameters: { message_id } });
-// });
-//
-// // Fallback. Show an example. Called via next()
-// durationCommands.command(COMMANDS, async (ctx) => {
-//   const command = ctx.message.text;
-//
-//   await ctx.reply("Gets YouTube duration \nFor example:");
-//
-//   const rickUrl = "https://youtu.be/oHg5SJYRHA0";
-//   const botMessage = await ctx.sendMessage(`${command} ${rickUrl}`, {
-//     link_preview_options: { is_disabled: true },
-//   });
-//   const { message_id } = botMessage;
-//
-//   // Stub API call for the example. Telegram ignores timestamps when page
-//   // preview is disabled. No need for unicode char
-//   const stubbedDuration = `Duration: 3:33`;
-//
-//   return ctx.reply(stubbedDuration, { reply_parameters: { message_id } });
-// });
+    const replyArg = ctx.message.reply_to_message;
+    if (!replyArg || !replyArg.text) {
+      return next();
+    }
+    const { message_id } = replyArg;
 
-export default durationCommands;
+    const duration = await getDurationText(ctx.env, parseUrl(replyArg.text));
+    return ctx.reply(duration, { reply_parameters: { message_id } });
+  });
+
+  // Fallback. Show an example. Called via next()
+  durationCommands.command(COMMANDS, async (ctx) => {
+    if (!ctx.message) {
+      return;
+    }
+    const command = ctx.message.text;
+
+    await ctx.reply("Gets YouTube duration \nFor example:");
+
+    const rickUrl = "https://youtu.be/oHg5SJYRHA0";
+    const botMessage = await ctx.reply(`${command} ${rickUrl}`, {
+      link_preview_options: { is_disabled: true },
+    });
+    const { message_id } = botMessage;
+
+    // Stub API call for the example. Telegram ignores timestamps when page
+    // preview is disabled. No need for unicode char
+    const stubbedDuration = `Duration: 3:33`;
+
+    return ctx.reply(stubbedDuration, { reply_parameters: { message_id } });
+  });
+}

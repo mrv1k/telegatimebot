@@ -1,5 +1,5 @@
+import { TTBComposer } from "..";
 import { delay } from "../helpers";
-import { BotWithContext } from "..";
 
 // Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
 const HELP_TEXT = `
@@ -15,11 +15,7 @@ I see a YouTube link. I fetch duration. I also convert timestamp.\\
 May or may not take your job. Still deciding
 ` + HELP_TEXT;
 
-const MOMS_ID = process.env.SECRET_ID;
-
-export function registerSimpleCommands(bot: BotWithContext): BotWithContext {
-  const simpleCommands = bot;
-
+export function useSimpleCommands(simpleCommands: TTBComposer) {
   // Every chat with bot starts from /start
   simpleCommands.command("start", (ctx) => {
     ctx.reply("start", { parse_mode: "MarkdownV2" });
@@ -34,7 +30,7 @@ export function registerSimpleCommands(bot: BotWithContext): BotWithContext {
       return null;
     }
 
-    if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
+    if (ctx.message.from.id === Number(ctx.env.SECRET_ID)) {
       return ctx.reply(`hi mom ❤️`, {
         reply_parameters: { message_id: ctx.msg.message_id },
       });
@@ -48,7 +44,7 @@ export function registerSimpleCommands(bot: BotWithContext): BotWithContext {
         return ctx.reply("sup uncle");
       }
       case "LexBorisoff": {
-        return ctx.reply("hello Lehman");
+        return ctx.reply("hej Leshugggah");
       }
       case "gelotheprodigy": {
         return ctx.reply(`gelo 🤨`);
@@ -76,47 +72,47 @@ export function registerSimpleCommands(bot: BotWithContext): BotWithContext {
       return null;
     }
 
-    if (MOMS_ID && ctx.message.from.id === Number(MOMS_ID)) {
+    if (ctx.message.from.id === Number(ctx.env.SECRET_ID)) {
       ctx.reply("bye mom 😘");
-      await delay(2000);
-      return ctx.leaveChat();
+      // FIXME: time works differently in workers
+      // await delay(2000);
+      return await ctx.leaveChat();
     }
 
     switch (ctx.message.from.username) {
       case "mrv1k": {
-        ctx.reply("please dad!");
+        await ctx.reply("please dad!");
         await delay(2000);
-        ctx.reply("i don't want to go :(");
+        await ctx.reply("i don't want to go :(");
         await delay(2000);
-        ctx.reply("bye dad 🫡");
+        await ctx.reply("bye dad 🫡");
         await delay(2000);
-        return ctx.leaveChat();
+        return await ctx.leaveChat();
       }
       case "JemboDev": {
-        ctx.reply("Adieu");
+        await ctx.reply("Adieu");
         await delay();
-        ctx.reply("goodbye");
+        await ctx.reply("goodbye");
         await delay();
-        ctx.reply("auf Wiederseh'n");
+        await ctx.reply("auf Wiederseh'n");
         return ctx.leaveChat();
       }
       case "LexBorisoff": {
-        ctx.reply("What are you doing Yakutza?");
+        await ctx.reply("What are you doing Yakutza?");
         await delay();
-        ctx.reply("☠️");
+        await ctx.reply("☠️");
         return ctx.leaveChat();
       }
       case "gelotheprodigy": {
         await delay(6969);
-        return ctx.reply("no 🤨");
+        return await ctx.reply("no 🤨");
       }
       default: {
         if (ctx.message.chat.type === "group") {
-          return ctx.reply("cya all");
+          return await ctx.reply("cya all");
         }
-        ctx.reply("bye");
+        await ctx.reply("bye");
       }
     }
   });
-  return simpleCommands;
 }

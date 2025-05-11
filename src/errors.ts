@@ -1,9 +1,7 @@
-import { Bot } from "grammy";
+import { Bot, ErrorHandler } from "grammy";
+import { TTBContext } from ".";
 
-export default async function errorHandler(
-  error: unknown,
-  ctx: Context,
-): Promise<void> {
+const errorHandler: ErrorHandler<TTBContext> = async (error) => {
   if (error instanceof NoopError) {
     // do nothing
     return;
@@ -15,14 +13,14 @@ export default async function errorHandler(
     error instanceof UrlParseError ||
     error instanceof TimeError
   ) {
-    ctx.reply(error.message);
+    error.ctx.reply(error.message);
     return;
   }
 
   process.exitCode = 1;
-  // console.error("Unhandled error while processing", error);
-  // console.log("broken by", ctx.update);
-  ctx.reply("Ouch. Something inside me just broke");
+  console.error("Unhandled error while processing", error);
+  console.log("broken by", error.ctx.update);
+  error.ctx.reply("Ouch. Something inside me just broke");
   process.kill(process.pid, "SIGINT");
 
   // WARNING: Always rethrow TimeoutError!
@@ -30,7 +28,7 @@ export default async function errorHandler(
   // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
   // to prevent a clean exit despite an error being thrown
   throw error;
-}
+};
 
 class YouTubeAPIError extends Error {
   constructor(message: string, stack?: string) {
@@ -72,4 +70,4 @@ class NoopError extends Error {
   }
 }
 
-export { YouTubeAPIError, TimeError, UrlParseError, NoopError };
+export { errorHandler, YouTubeAPIError, TimeError, UrlParseError, NoopError };

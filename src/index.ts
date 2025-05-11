@@ -1,64 +1,48 @@
 import { Bot } from "grammy";
-// import durationCommands from "./commands/duration";
+import { Composer } from "grammy";
 // import durationTimestampCommands from "./commands/duration-timestamp";
 // import spy from "./commands/spy";
 // import timestampCommands from "./commands/timestamp";
-import type { ContextWithEnv } from "./envs";
-import { parseDevEnv } from "./envs";
-// import errorHandler from "./errors";
-import { registerSimpleCommands } from "./commands/simple-commands";
+import { useSimpleCommands } from "./commands/simple-commands";
 
-export type BotWithContext = Bot<ContextWithEnv>;
+import type { Context } from "grammy";
+import { useDurationCommands } from "./commands/duration";
+import { errorHandler } from "./errors";
 
-export function configureBot(env: Env) {
-  const bot = new Bot<ContextWithEnv>(env.BOT_TOKEN, {
+export interface TTBContext extends Context {
+  env: Env;
+}
+export type TTBComposer = Composer<TTBContext>;
+
+export function initBot(env: Env) {
+  const bot = new Bot<TTBContext>(env.BOT_TOKEN, {
     botInfo: {
-      id: 1817589905,
+      id: 1605965329,
       is_bot: true,
-      first_name: "TelegaTimeBot",
-      username: "telegatimebot",
+      first_name: "Mrv1kbot",
+      username: "mrv1kbot",
       can_join_groups: true,
-      can_read_all_group_messages: true,
+      can_read_all_group_messages: false,
       supports_inline_queries: false,
       can_connect_to_business: false,
       has_main_web_app: false,
     },
   });
 
-  bot.use((ctx, next) => {
+  const composer = new Composer<TTBContext>().use((ctx, next) => {
     ctx.env = env;
     next();
   });
 
-  // bot.catch(errorHandler);
+  bot.catch(errorHandler);
 
-  registerSimpleCommands(bot);
+  useSimpleCommands(composer);
+  useDurationCommands(composer);
 
   // bot.use(timestampCommands);
-  // bot.use(durationCommands);
   // bot.use(durationTimestampCommands);
   // bot.use(spy);
+
+  bot.use(composer);
   return bot;
-}
-
-async function startBotInDev() {
-  const env = parseDevEnv();
-  const bot = configureBot(env);
-
-  // if (process.env.NODE_ENV === "debug") {
-  //   bot.use(Telegraf.log());
-  // }
-  bot.start();
-
-  // Enable graceful stop & kill for long polling
-  process.once("SIGINT", () => bot.stop());
-  process.once("SIGTERM", () => bot.stop());
-}
-
-const DEV_ENVS = ["dev", "development", "debug"];
-const nodeEnv = process.env.NODE_ENV ?? "noop";
-
-if (DEV_ENVS.includes(nodeEnv)) {
-  console.log(nodeEnv, "started in dev");
-  startBotInDev();
 }
