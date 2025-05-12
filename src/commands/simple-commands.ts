@@ -3,26 +3,23 @@ import { delay } from "../helpers";
 
 // Escapes are for Telegram Markdown: https://core.telegram.org/bots/api#markdownv2-style
 const HELP_TEXT = `
-*Commands*:
-/[d]uration \\<link\\> \\- get duration
-/[t]imestamp \\<link?t\\=1\\> \\- convert timestamp
-/dt \\- /duration & /timestamp combined
-/help \\- display help message`;
+Commands:
+/[d]uration <link> - get duration
+/[t]imestamp <link?t=1> - convert timestamp
+/dt - /duration & /timestamp combined
+/help - display help message`;
 
-const START_TEXT =
-  `Beep-boop. I'm a [ro]bot.\\
-I see a YouTube link. I fetch duration. I also convert timestamp.\\
-May or may not take your job. Still deciding
-` + HELP_TEXT;
+const START_TEXT = `Beep-boop. I'm a [ro]bot.
+I wait for a YouTube link. I fetch duration. I convert timestamp.`;
 
 export function useSimpleCommands(simpleCommands: TTBComposer) {
   // Every chat with bot starts from /start
-  simpleCommands.command("start", (ctx) => {
-    ctx.reply("start", { parse_mode: "MarkdownV2" });
+  simpleCommands.command("start", async (ctx) => {
+    await ctx.reply(START_TEXT + "\n" + HELP_TEXT);
   });
 
-  simpleCommands.command("help", (ctx) => {
-    ctx.reply("test", { parse_mode: "MarkdownV2" });
+  simpleCommands.command("help", async (ctx) => {
+    await ctx.reply(HELP_TEXT);
   });
 
   simpleCommands.command(["hi", "hello"], async (ctx) => {
@@ -104,8 +101,9 @@ export function useSimpleCommands(simpleCommands: TTBComposer) {
         return ctx.leaveChat();
       }
       case "gelotheprodigy": {
+        await ctx.reply("no 🤨");
         await delay(6969);
-        return await ctx.reply("no 🤨");
+        return ctx.leaveChat();
       }
       default: {
         if (ctx.message.chat.type === "group") {

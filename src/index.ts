@@ -1,20 +1,19 @@
-import { Bot } from "grammy";
-import { Composer } from "grammy";
+import { Bot, Composer } from "grammy";
 // import durationTimestampCommands from "./commands/duration-timestamp";
 // import spy from "./commands/spy";
 // import timestampCommands from "./commands/timestamp";
-import { useSimpleCommands } from "./commands/simple-commands";
-
 import type { Context } from "grammy";
-import { useDurationCommands } from "./commands/duration";
+// import { useDurationCommands } from "./commands/duration";
+import { useSimpleCommands } from "./commands/simple-commands";
 import { errorHandler } from "./errors";
+import { generateUpdateMiddleware } from "telegraf-middleware-console-time";
 
 export interface TTBContext extends Context {
   env: Env;
 }
 export type TTBComposer = Composer<TTBContext>;
 
-export function initBot(env: Env) {
+export async function initBot(env: Env) {
   const bot = new Bot<TTBContext>(env.BOT_TOKEN, {
     botInfo: {
       id: 1605965329,
@@ -28,6 +27,7 @@ export function initBot(env: Env) {
       has_main_web_app: false,
     },
   });
+  bot.use(generateUpdateMiddleware());
 
   const composer = new Composer<TTBContext>().use((ctx, next) => {
     ctx.env = env;
@@ -37,7 +37,7 @@ export function initBot(env: Env) {
   bot.catch(errorHandler);
 
   useSimpleCommands(composer);
-  useDurationCommands(composer);
+  // useDurationCommands(composer);
 
   // bot.use(timestampCommands);
   // bot.use(durationTimestampCommands);
