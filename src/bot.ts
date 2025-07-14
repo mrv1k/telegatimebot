@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === "debug") {
 
 const go = async () => {
   if (process.env.WEBHOOK_DOMAIN === undefined) {
-    throw new TypeError("NODE_ENV must be specified");
+    throw new TypeError("WEBHOOK_DOMAIN must be specified");
   }
 
   const path = `/telegraf/${bot.secretPathComponent()}`;
